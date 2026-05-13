@@ -1,18 +1,6 @@
-function parseCookies(cookieHeader) {
-  const cookies = {};
-  if (!cookieHeader) return cookies;
-  cookieHeader.split(';').forEach(cookie => {
-    const [name, ...rest] = cookie.split('=');
-    if (name && rest.length) {
-      cookies[name.trim()] = decodeURIComponent(rest.join('=').trim());
-    }
-  });
-  return cookies;
-}
-
 export default async function handler(req, res) {
   const { code } = req.query;
-  
+
   if (!code) {
     return res.status(400).send('Missing authorization code.');
   }
@@ -20,26 +8,29 @@ export default async function handler(req, res) {
   try {
     const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
-      headers: { 
-        'Accept': 'application/json', 
-        'Content-Type': 'application/json' 
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         client_id: process.env.GITHUB_CLIENT_ID,
         client_secret: process.env.GITHUB_CLIENT_SECRET,
-        code: code
-      })
+        code: code,
+      }),
     });
-    
+
     const tokenData = await tokenRes.json();
-    
+
     if (tokenData.access_token) {
-      res.setHeader('Set-Cookie', `github_token=${tokenData.access_token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600`);
-      res.redirect('/?deploy=true');
+      res.setHeader(
+        'Set-Cookie',
+        `github_token=${tokenData.access_token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600`
+      );
+      return res.redirect('/?deploy=true');
     } else {
-      res.status(400).send('GitHub auth failed. Please try again.');
+      return res.status(400).send('GitHub auth failed. Please try again.');
     }
   } catch (err) {
-    res.status(500).send('Auth server error.');
+    return res.status(500).send('Auth server error.');
   }
 }
