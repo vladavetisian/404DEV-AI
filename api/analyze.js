@@ -5,23 +5,57 @@ const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
 async function fetchWebsiteText(url) {
   try {
-    const res = await fetch(url, { 
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
-      signal: AbortSignal.timeout(8000)
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      },
+      signal: AbortSignal.timeout(8000),
     });
+
     if (!res.ok) throw new Error(`Failed to fetch URL (${res.status})`);
+
     const html = await res.text();
+
     const cleaned = html
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
       .replace(/<[^>]+>/g, ' ')
       .replace(/\s+/g, ' ')
       .trim()
-      .slice(0, 8000);
-    if (!cleaned || cleaned.length < 50) throw new Error('Not enough readable content found on the page');
+      .slice(0, 5000);
+
+    if (!cleaned || cleaned.length < 50) {
+      throw new Error('Not enough readable content found on the page');
+    }
+
     return cleaned;
   } catch (err) {
     throw new Error(`Fetch error: ${err.message}`);
+  }
+}
+
+function safeJsonParse(text) {
+  try {
+    let cleaned = text
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
+
+    const start = cleaned.indexOf('{');
+    const endObj = cleaned.lastIndexOf('}');
+    const startArr = cleaned.indexOf('[');
+    const endArr = cleaned.lastIndexOf(']');
+
+    if (start >= 0 && endObj > start) {
+      cleaned = cleaned.slice(start, endObj + 1);
+    } else if (startArr >= 0 && endArr > startArr) {
+      cleaned = cleaned.slice(startArr, endArr + 1);
+    }
+
+    return JSON.parse(cleaned);
+  } catch (e) {
+    return null;
   }
 }
 
@@ -46,53 +80,110 @@ export default async function handler(req, res) {
     }
 
     if (!process.env.GEMINI_API_KEY) {
-      return res.status(500).json({ error: 'API key not configured on server.' });
+      return res.status(500).json({ error: 'API key not configured.' });
     }
 
     let content;
     try {
       content = await fetchWebsiteText(url);
     } catch (err) {
-      return res.status(400).json({ error: `Could not analyze website: ${err.message}` });
+      return res.status(400).json({
+        error: `Could not analyze website: ${err.message}`,
+      });
     }
 
-    const prompt = `You are an AI business analyst. Given a business website's content and its industry, recommend 2-3 AI agent types for this business.
+    const prompt = `
+You are the Tier-Based Agent Generation System inside 404DEV AI.
 
+Your job is NOT to modify websites.
+
+Your job is to analyze a website and generate an EXTERNAL AI AGENT system based on business value.
+
+INPUT:
 Industry: ${industry}
+Website Content: ${content}
 
-Website content: ${content}
+---
 
-Possible agent types: Voice Agent, Appointment Booking Bot, Lead Capture Chatbot, FAQ Chatbot, Follow-up Automation Agent, Sales Qualifier Bot.
+AUTO ASSIGN TIER:
 
-Return ONLY a JSON array. No explanations, no markdown. Each object must have:
-- agentType
-- whyFits
-- problemSolved
-- estimatedImpact
+- TIER 1: small/unclear website → analysis only
+- TIER 2: normal business → single growth agent
+- TIER 3: strong business → autonomous growth system
 
-Example: [{"agentType":"FAQ Chatbot","whyFits":"The site has many services listed with no FAQ section.","problemSolved":"Reduces repetitive customer questions and support tickets.","estimatedImpact":"40% reduction in support inquiries within the first month."}]`;
+---
+
+RULES:
+- NEVER modify website
+- ALWAYS external system only
+- Focus on revenue impact
+- Be specific, not generic
+- No marketing fluff
+
+---
+
+OUTPUT FORMAT:
+
+### If TIER 1:
+{
+  "tier": "TIER_1",
+  "summary": "string",
+  "problems": ["string"],
+  "revenueLeaks": ["string"],
+  "recommendations": ["string"]
+}
+
+### If TIER 2:
+{
+  "tier": "TIER_2",
+  "agent": {
+    "name": "string",
+    "role": "string",
+    "functions": ["string"],
+    "businessImpact": "string",
+    "interaction": "string"
+  }
+}
+
+### If TIER 3:
+{
+  "tier": "TIER_3",
+  "system": {
+    "name": "string",
+    "agents": ["string"],
+    "capabilities": ["string"],
+    "businessImpact": "string",
+    "interaction": "string"
+  }
+}
+
+RETURN ONLY VALID JSON. NO TEXT. NO MARKDOWN.
+`;
 
     let responseText;
     try {
       const result = await model.generateContent(prompt);
       responseText = result.response.text();
-    } catch (geminiErr) {
-      return res.status(500).json({ error: `AI analysis failed: ${geminiErr.message}` });
+    } catch (err) {
+      return res.status(500).json({
+        error: `AI generation failed: ${err.message}`,
+      });
     }
 
-    try {
-      const cleaned = responseText.replace(/```json|```/g, '').trim();
-      const recommendations = JSON.parse(cleaned);
-      if (!Array.isArray(recommendations) || recommendations.length === 0) {
-        return res.status(200).json({ rawResponse: responseText });
-      }
-      return res.status(200).json({ recommendations });
-    } catch {
-      return res.status(200).json({ rawResponse: responseText });
+    const parsed = safeJsonParse(responseText);
+
+    if (!parsed) {
+      return res.status(200).json({
+        rawResponse: responseText,
+        warning: 'Failed to parse structured output',
+      });
     }
 
+    return res.status(200).json(parsed);
   } catch (err) {
     console.error('Handler error:', err);
-    return res.status(500).json({ error: `Server error: ${err.message}` });
+    return res.status(500).json({
+      error: `Server error: ${err.message}`,
+    });
   }
 }
