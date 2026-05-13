@@ -1,3 +1,15 @@
+function parseCookies(cookieHeader) {
+  const cookies = {};
+  if (!cookieHeader) return cookies;
+  cookieHeader.split(';').forEach(cookie => {
+    const [name, ...rest] = cookie.split('=');
+    if (name && rest.length) {
+      cookies[name.trim()] = decodeURIComponent(rest.join('=').trim());
+    }
+  });
+  return cookies;
+}
+
 export default async function handler(req, res) {
   const { code } = req.query;
   
