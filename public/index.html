@@ -1,331 +1,434 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404DEV AI — Find Your AI Agent</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: #0a0a0a;
-      color: #fff;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 2rem 1rem;
-      animation: fadeIn 0.8s ease-out;
-    }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .container { max-width: 600px; width: 100%; text-align: center; }
-    h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
-    .accent { color: #7C3AED; }
-    .subtitle { color: #a1a1aa; font-size: 1.1rem; margin-bottom: 2.5rem; line-height: 1.5; }
-    .form-group { margin-bottom: 1.5rem; text-align: left; }
-    label { display: block; font-size: 0.9rem; font-weight: 500; color: #d4d4d8; margin-bottom: 0.5rem; }
-    input, select {
-      width: 100%; padding: 0.9rem 1rem;
-      background: #18181b; border: 1px solid #27272a; border-radius: 10px;
-      color: #fff; font-size: 1rem;
-      transition: border 0.2s, box-shadow 0.2s;
-    }
-    input:focus, select:focus { outline: none; border-color: #7C3AED; box-shadow: 0 0 0 3px rgba(124,58,237,0.2); }
-    select {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a1a1aa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-      background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2rem;
-    }
-    button {
-      width: 100%; padding: 1rem;
-      background: #7C3AED; color: white; border: none; border-radius: 10px;
-      font-size: 1.1rem; font-weight: 600; cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-      margin-top: 0.5rem;
-      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-    }
-    button:hover { background: #6d28d9; }
-    button:active { transform: scale(0.98); }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .spinner {
-      width: 20px; height: 20px;
-      border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-      display: none;
-    }
-    button.loading .spinner { display: inline-block; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .results { margin-top: 2.5rem; animation: fadeIn 0.6s ease-out; }
-    .card {
-      background: #18181b; border: 1px solid #27272a; border-radius: 12px;
-      padding: 1.5rem; margin-bottom: 1.2rem; text-align: left;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-    .card:hover { border-color: #7C3AED; transform: translateY(-2px); }
-    .card-title { font-size: 1.3rem; font-weight: 600; color: #7C3AED; margin-bottom: 0.8rem; }
-    .card-detail { font-size: 0.95rem; color: #d4d4d8; margin-bottom: 0.5rem; line-height: 1.5; }
-    .card-label { font-weight: 600; color: #a78bfa; margin-right: 0.3rem; }
-    .cta-button {
-      display: inline-block; margin-top: 2rem;
-      padding: 1rem 2rem; background: #7C3AED; color: white;
-      text-decoration: none; border-radius: 10px; font-weight: 600;
-      transition: background 0.2s; animation: fadeIn 0.6s ease-out;
-    }
-    .cta-button:hover { background: #6d28d9; }
-    .error-message { color: #ef4444; background: #1f1315; border: 1px solid #3b1010; border-radius: 8px; padding: 1rem; margin-top: 1rem; animation: fadeIn 0.3s ease-out; }
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.85);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 1000;
-    }
-    .modal-overlay.hidden { display: none; }
-    .modal-box {
-      background: #18181b; border: 1px solid #27272a; border-radius: 16px;
-      padding: 2rem; max-width: 450px; width: 90%;
-    }
-    .modal-box h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
-    .modal-box p { color: #a1a1aa; margin-bottom: 1.5rem; line-height: 1.5; font-size: 0.95rem; }
-    .modal-warning { color: #fbbf24; font-size: 0.85rem; margin-bottom: 1rem; }
-    .modal-buttons { display: flex; gap: 10px; }
-    .btn-primary {
-      flex: 1; background: #7C3AED; color: white; border: none; border-radius: 10px;
-      padding: 0.8rem; font-weight: 600; cursor: pointer; font-size: 0.95rem;
-    }
-    .btn-primary:hover { background: #6d28d9; }
-    .btn-secondary {
-      flex: 1; background: #27272a; color: #a1a1aa; border: none; border-radius: 10px;
-      padding: 0.8rem; font-weight: 600; cursor: pointer; font-size: 0.95rem;
-    }
-    .btn-secondary:hover { background: #3f3f46; }
-    .deploy-badge {
-      font-size: 0.7rem; opacity: 0.6; float: right;
-      background: #7C3AED22; padding: 4px 10px; border-radius: 20px;
-    }
-    .deploy-link { color: #7C3AED; word-break: break-all; }
-    @media (max-width: 480px) { h1 { font-size: 2rem; } }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>404DEV AI</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0a0a0a;
+  color: white;
+  font-family: system-ui, sans-serif;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.container {
+  width: 100%;
+  max-width: 700px;
+}
+
+h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.accent {
+  color: #7C3AED;
+}
+
+.subtitle {
+  color: #aaa;
+  margin-bottom: 30px;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #111;
+  border: 1px solid #333;
+  color: white;
+  border-radius: 8px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: #7C3AED;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+.card {
+  margin-top: 20px;
+  padding: 16px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 10px;
+}
+
+.title {
+  color: #7C3AED;
+  margin-bottom: 10px;
+}
+
+ul {
+  margin-left: 18px;
+  margin-top: 8px;
+}
+
+/* Deploy button styles */
+.deploy-btn {
+  margin-top: 16px;
+  background: #7C3AED;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.deploy-btn:hover { background: #6d28d9; }
+
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.modal-overlay.hidden { display: none; }
+.modal-box {
+  background: #18181b; border: 1px solid #333; border-radius: 16px;
+  padding: 24px; max-width: 420px; width: 90%;
+}
+.modal-box h3 { font-size: 1.2rem; margin-bottom: 8px; }
+.modal-box p { color: #aaa; margin-bottom: 16px; font-size: 14px; }
+.modal-warning { color: #fbbf24; font-size: 13px; margin-bottom: 16px; }
+.modal-buttons { display: flex; gap: 10px; }
+.modal-buttons button { flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.btn-primary { background: #7C3AED; color: white; border: none; }
+.btn-secondary { background: #27272a; color: #aaa; border: none; }
+
+.status-card {
+  margin-top: 16px;
+  padding: 14px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 10px;
+}
+.status-success { color: #4ade80; }
+.deploy-link { color: #7C3AED; word-break: break-all; }
+
+.cta-card {
+  margin-top: 20px;
+  padding: 16px;
+  background: #111;
+  border: 1px solid #fbbf24;
+  border-radius: 10px;
+  text-align: center;
+}
+.cta-card a {
+  display: inline-block;
+  margin-top: 10px;
+  background: #7C3AED;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+</style>
+
 </head>
+
 <body>
-  <div class="container">
-    <h1>404<span class="accent">DEV AI</span></h1>
-    <p class="subtitle">Paste your business URL, pick your industry, and discover the AI agent your business actually needs.</p>
-    <form id="analyzeForm">
-      <div class="form-group">
-        <label for="url">Website URL</label>
-        <input type="url" id="url" placeholder="https://yourbusiness.com" autofocus>
-      </div>
-      <div class="form-group">
-        <label for="industry">Industry</label>
-        <select id="industry" required>
-          <option value="" disabled selected>Select your industry</option>
-          <option>Real Estate</option>
-          <option>Salon/Spa</option>
-          <option>Legal</option>
-          <option>Medical/Dental</option>
-          <option>Restaurant</option>
-          <option>Contractor/Home Services</option>
-          <option>E-commerce</option>
-          <option>Coaching/Consulting</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <button type="submit" id="submitBtn">
-        <span class="button-text">Analyze My Site</span>
-        <div class="spinner"></div>
-      </button>
-    </form>
-    <div id="results" class="results" style="display: none;"></div>
-    <div id="cta-section" style="display: none;">
-      <a href="https://vladavetisian.github.io/Elite_Circle_Club/" class="cta-button" target="_blank" rel="noopener">
-        Want us to build this for you?
-      </a>
-    </div>
-  </div>
 
-  <script>
-    const form = document.getElementById('analyzeForm');
-    const resultsDiv = document.getElementById('results');
-    const ctaSection = document.getElementById('cta-section');
-    const submitBtn = document.getElementById('submitBtn');
+<div class="container">
 
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('deploy') === 'true') {
-      const pendingDeploy = sessionStorage.getItem('pendingDeploy');
-      if (pendingDeploy) {
-        handleDeploy(JSON.parse(pendingDeploy));
-        sessionStorage.removeItem('pendingDeploy');
-      }
-    }
+<h1>404<span class="accent">DEV AI</span></h1>
+<p class="subtitle">Analyze your business and generate AI agents</p>
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const url = document.getElementById('url').value;
-      const industry = document.getElementById('industry').value;
+<input id="url" placeholder="https://yourwebsite.com"/>
+<select id="industry">
+  <option value="">Select industry</option>
+  <option>Real Estate</option>
+  <option>Legal</option>
+  <option>Medical</option>
+  <option>E-commerce</option>
+  <option>Other</option>
+</select>
 
-      if (!url) {
-        resultsDiv.innerHTML = '<div class="error-message">Please enter a website URL.</div>';
-        resultsDiv.style.display = 'block';
-        return;
-      }
+<button id="btn">Analyze</button>
 
-      submitBtn.disabled = true; submitBtn.classList.add('loading');
-      resultsDiv.style.display = 'none'; ctaSection.style.display = 'none'; resultsDiv.innerHTML = '';
+<div id="output"></div>
 
-      try {
-        const response = await fetch('/api/analyze', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, industry })
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Something went wrong');
+</div>
 
-        const businessName = extractBusinessName(url);
-        let html = '';
+<script>
+const btn = document.getElementById("btn");
+const output = document.getElementById("output");
 
-        if (data.tier === 'TIER_1') {
-          html = `<div class="card">
-            <div class="card-title">🔍 TIER 1 — Free Scan</div>
-            <div class="card-detail"><span class="card-label">Summary:</span>${escapeHtml(data.summary)}</div>
-            <div class="card-detail"><span class="card-label">Problems Found:</span></div>
-            <ul style="color: #d4d4d8; margin-left: 1.5rem; line-height: 1.8;">
-              ${(data.problems || []).map(p => `<li>${escapeHtml(p)}</li>`).join('')}
-            </ul>
-            <div class="card-detail" style="margin-top: 0.5rem;"><span class="card-label">Revenue Leaks:</span></div>
-            <ul style="color: #ef4444; margin-left: 1.5rem; line-height: 1.8;">
-              ${(data.revenueLeaks || []).map(l => `<li>${escapeHtml(l)}</li>`).join('')}
-            </ul>
-            <div class="card-detail" style="margin-top: 0.5rem;"><span class="card-label">Recommendations:</span></div>
-            <ul style="color: #4ade80; margin-left: 1.5rem; line-height: 1.8;">
-              ${(data.recommendations || []).map(r => `<li>${escapeHtml(r)}</li>`).join('')}
-            </ul>
-          </div>`;
+// Check if returning from GitHub OAuth
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('deploy') === 'true') {
+  const pendingDeploy = sessionStorage.getItem('pendingDeploy');
+  if (pendingDeploy) {
+    handleDeploy(JSON.parse(pendingDeploy));
+    sessionStorage.removeItem('pendingDeploy');
+  }
+}
 
-        } else if (data.tier === 'TIER_2') {
-          const agent = data.agent || {};
-          html = `<div class="card" style="cursor: pointer;" onclick='openDeployModal("${escapeHtml(agent.name || '')}", "${escapeHtml(businessName)}", "${escapeHtml(industry)}", "${escapeHtml(url)}")'>
-            <div class="card-title">⚡ TIER 2 — ${escapeHtml(agent.name || '')} <span class="deploy-badge">Deploy →</span></div>
-            <div class="card-detail"><span class="card-label">Role:</span>${escapeHtml(agent.role || '')}</div>
-            <div class="card-detail"><span class="card-label">Functions:</span></div>
-            <ul style="color: #d4d4d8; margin-left: 1.5rem; line-height: 1.8;">
-              ${(agent.functions || []).map(f => `<li>${escapeHtml(f)}</li>`).join('')}
-            </ul>
-            <div class="card-detail"><span class="card-label">Business Impact:</span>${escapeHtml(agent.businessImpact || '')}</div>
-            <div class="card-detail"><span class="card-label">How to use:</span>${escapeHtml(agent.interaction || '')}</div>
-          </div>`;
+btn.onclick = async () => {
+  const url = document.getElementById("url").value;
+  const industry = document.getElementById("industry").value;
 
-        } else if (data.tier === 'TIER_3') {
-          const system = data.system || {};
-          html = `<div class="card">
-            <div class="card-title">🚀 TIER 3 — ${escapeHtml(system.name || '')}</div>
-            <div class="card-detail"><span class="card-label">Agents:</span></div>
-            <ul style="color: #d4d4d8; margin-left: 1.5rem; line-height: 1.8;">
-              ${(system.agents || []).map(a => `<li>${escapeHtml(a)}</li>`).join('')}
-            </ul>
-            <div class="card-detail"><span class="card-label">Capabilities:</span></div>
-            <ul style="color: #a78bfa; margin-left: 1.5rem; line-height: 1.8;">
-              ${(system.capabilities || []).map(c => `<li>${escapeHtml(c)}</li>`).join('')}
-            </ul>
-            <div class="card-detail"><span class="card-label">Business Impact:</span>${escapeHtml(system.businessImpact || '')}</div>
-            <div class="card-detail"><span class="card-label">How to use:</span>${escapeHtml(system.interaction || '')}</div>
-          </div>
-          <div class="card" style="text-align: center;">
-            <p style="color: #fbbf24; margin-bottom: 1rem;">⭐ This business qualifies for our premium autonomous growth system.</p>
-            <a href="https://vladavetisian.github.io/Elite_Circle_Club/" target="_blank" rel="noopener" class="cta-button" style="display: inline-block; margin-top: 0;">Get the Full System</a>
-          </div>`;
-        }
+  if (!url || !industry) {
+    alert("Fill all fields");
+    return;
+  }
 
-        if (data.rawResponse && !html) {
-          html = `<div class="card"><div class="card-detail">${escapeHtml(data.rawResponse)}</div></div>`;
-        }
+  btn.disabled = true;
+  btn.innerText = "Analyzing...";
+  output.innerHTML = "";
 
-        resultsDiv.innerHTML = html || '<p>No analysis could be generated.</p>';
-        resultsDiv.style.display = 'block';
-        ctaSection.style.display = 'block';
-
-      } catch (error) {
-        resultsDiv.innerHTML = `<div class="error-message">${escapeHtml(error.message)}</div>`;
-        resultsDiv.style.display = 'block';
-      } finally {
-        submitBtn.disabled = false; submitBtn.classList.remove('loading');
-      }
+  try {
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url, industry })
     });
 
-    function extractBusinessName(url) {
-      try {
-        const hostname = new URL(url).hostname;
-        return hostname.replace('www.', '').split('.')[0].replace(/-/g, ' ');
-      } catch { return 'Your Business'; }
+    const data = await res.json();
+    const normalized = normalize(data);
+    render(normalized, url, industry);
+
+  } catch (e) {
+    output.innerHTML = `<div class="card">Error: ${e.message}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.innerText = "Analyze";
+};
+
+
+/* =========================
+   API ADAPTER
+========================= */
+function normalize(data) {
+
+  if (data.tier === "TIER_1") {
+    return {
+      type: "analysis",
+      title: "Free Scan",
+      summary: data.summary,
+      problems: data.problems || [],
+      revenueLeaks: data.revenueLeaks || [],
+      recommendations: data.recommendations || []
+    };
+  }
+
+  if (data.tier === "TIER_2") {
+    return {
+      type: "agent",
+      title: data.agent?.name || "Growth Agent",
+      role: data.agent?.role || "",
+      functions: data.agent?.functions || [],
+      impact: data.agent?.businessImpact || "",
+      interaction: data.agent?.interaction || "",
+      deployable: true
+    };
+  }
+
+  if (data.tier === "TIER_3") {
+    return {
+      type: "system",
+      title: data.system?.name || "Autonomous System",
+      agents: data.system?.agents || [],
+      capabilities: data.system?.capabilities || [],
+      impact: data.system?.businessImpact || "",
+      interaction: data.system?.interaction || ""
+    };
+  }
+
+  return {
+    type: "unknown",
+    raw: data
+  };
+}
+
+
+/* =========================
+   RENDER LAYER
+========================= */
+function render(data, url, industry) {
+
+  output.innerHTML = "";
+
+  const card = document.createElement("div");
+  card.className = "card";
+
+  if (data.type === "analysis") {
+    card.innerHTML = `
+      <div class="title">🔍 ${data.title}</div>
+      <p>${data.summary}</p>
+
+      <h4>Problems</h4>
+      <ul>${data.problems.map(x => `<li>${x}</li>`).join("")}</ul>
+
+      <h4>Revenue Leaks</h4>
+      <ul>${data.revenueLeaks.map(x => `<li>${x}</li>`).join("")}</ul>
+
+      <h4>Recommendations</h4>
+      <ul>${data.recommendations.map(x => `<li>${x}</li>`).join("")}</ul>
+    `;
+  }
+
+  if (data.type === "agent") {
+    card.innerHTML = `
+      <div class="title">⚡ ${data.title}</div>
+      <p><b>Role:</b> ${data.role}</p>
+
+      <h4>Functions</h4>
+      <ul>${data.functions.map(x => `<li>${x}</li>`).join("")}</ul>
+
+      <p><b>Impact:</b> ${data.impact}</p>
+      <p><b>Use:</b> ${data.interaction}</p>
+
+      <button class="deploy-btn" id="deployBtn">⚡ Deploy This Agent</button>
+    `;
+  }
+
+  if (data.type === "system") {
+    card.innerHTML = `
+      <div class="title">🚀 ${data.title}</div>
+
+      <h4>Agents</h4>
+      <ul>${data.agents.map(x => `<li>${x}</li>`).join("")}</ul>
+
+      <h4>Capabilities</h4>
+      <ul>${data.capabilities.map(x => `<li>${x}</li>`).join("")}</ul>
+
+      <p><b>Impact:</b> ${data.impact}</p>
+      <p><b>Use:</b> ${data.interaction}</p>
+    `;
+
+    // Premium CTA card
+    const ctaCard = document.createElement("div");
+    ctaCard.className = "cta-card";
+    ctaCard.innerHTML = `
+      <p style="color: #fbbf24;">⭐ This business qualifies for our premium autonomous growth system.</p>
+      <a href="https://vladavetisian.github.io/Elite_Circle_Club/" target="_blank" rel="noopener">Get the Full System</a>
+    `;
+    output.appendChild(card);
+    output.appendChild(ctaCard);
+    return;
+  }
+
+  if (data.type === "unknown") {
+    card.innerHTML = `<pre>${JSON.stringify(data.raw, null, 2)}</pre>`;
+  }
+
+  output.appendChild(card);
+
+  // Attach deploy button listener if agent type
+  if (data.type === "agent") {
+    const deployBtn = document.getElementById("deployBtn");
+    if (deployBtn) {
+      deployBtn.onclick = () => {
+        const businessName = extractBusinessName(url);
+        openDeployModal(data.title, businessName, industry, url);
+      };
     }
+  }
+}
 
-    function openDeployModal(agentName, businessName, industry, websiteUrl) {
-      const existingModal = document.getElementById('deployModal');
-      if (existingModal) existingModal.remove();
+function extractBusinessName(url) {
+  try {
+    const hostname = new URL(url).hostname;
+    return hostname.replace('www.', '').split('.')[0].replace(/-/g, ' ');
+  } catch { return 'Your Business'; }
+}
 
-      const modalHTML = `
-        <div class="modal-overlay" id="deployModal">
-          <div class="modal-box">
-            <h3>Deploy <span style="color: #7C3AED;">${escapeHtml(agentName)}</span></h3>
-            <p>This will create a GitHub repository with your AI agent and deploy it live to GitHub Pages — free and instant.</p>
-            <p style="color: #d4d4d8; font-size: 0.9rem;"><strong>Business:</strong> ${escapeHtml(businessName)}</p>
-            <p class="modal-warning">⚠️ One-time GitHub authorization required (free).</p>
-            <div class="modal-buttons">
-              <button class="btn-primary" id="confirmDeployBtn">Deploy Now</button>
-              <button class="btn-secondary" id="cancelDeployBtn">Cancel</button>
-            </div>
-          </div>
-        </div>`;
-      document.body.insertAdjacentHTML('beforeend', modalHTML);
+/* =========================
+   DEPLOY MODAL
+========================= */
+function openDeployModal(agentName, businessName, industry, url) {
+  const existing = document.getElementById('deployModal');
+  if (existing) existing.remove();
 
-      document.getElementById('confirmDeployBtn').onclick = () => {
-        document.getElementById('deployModal').remove();
-        handleDeploy({ agentType: agentName, businessName, industry, websiteUrl });
-      };
-      document.getElementById('cancelDeployBtn').onclick = () => {
-        document.getElementById('deployModal').remove();
-      };
-      document.getElementById('deployModal').onclick = function(e) {
-        if (e.target === this) this.remove();
-      };
-    }
+  const modal = document.createElement("div");
+  modal.className = "modal-overlay";
+  modal.id = "deployModal";
+  modal.innerHTML = `
+    <div class="modal-box">
+      <h3>Deploy <span style="color: #7C3AED;">${escapeHtml(agentName)}</span></h3>
+      <p>Create a GitHub repository and deploy your AI agent live to GitHub Pages — free and instant.</p>
+      <p style="color: #d4d4d8; font-size: 14px;"><b>Business:</b> ${escapeHtml(businessName)}</p>
+      <p class="modal-warning">⚠️ One-time GitHub authorization required (free).</p>
+      <div class="modal-buttons">
+        <button class="btn-primary" id="confirmDeploy">Deploy Now</button>
+        <button class="btn-secondary" id="cancelDeploy">Cancel</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
 
-    async function handleDeploy({ agentType, businessName, industry, websiteUrl }) {
-      const statusDiv = document.createElement('div');
-      statusDiv.className = 'card';
-      statusDiv.innerHTML = '<div class="card-detail">🚀 Deploying your AI agent to GitHub Pages...</div>';
-      resultsDiv.insertBefore(statusDiv, resultsDiv.firstChild);
-      statusDiv.scrollIntoView({ behavior: 'smooth' });
+  document.getElementById("confirmDeploy").onclick = () => {
+    modal.remove();
+    handleDeploy({ agentType: agentName, businessName, industry, websiteUrl: url });
+  };
+  document.getElementById("cancelDeploy").onclick = () => modal.remove();
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+}
 
-      try {
-        const response = await fetch('/api/deploy-bot', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ agentType, businessName, industry, websiteUrl })
-        });
-        const data = await response.json();
-        if (!response.ok) {
-          if (response.status === 401 && data.authUrl) {
-            sessionStorage.setItem('pendingDeploy', JSON.stringify({ agentType, businessName, industry, websiteUrl }));
-            window.location.href = data.authUrl;
-            return;
-          }
-          throw new Error(data.error || 'Deployment failed');
-        }
-        statusDiv.innerHTML = `
-          <div class="card-detail" style="color: #4ade80; font-size: 1.1rem;">✅ Agent deployed!</div>
-          <div class="card-detail" style="margin-top: 12px;"><span class="card-label">Live URL:</span> <a href="${data.deployedUrl}" target="_blank" class="deploy-link">${data.deployedUrl}</a></div>
-          <div class="card-detail"><span class="card-label">Repo:</span> <a href="${data.repoUrl}" target="_blank" class="deploy-link">${data.repoUrl}</a></div>
-          <p style="color: #a1a1aa; font-size: 0.8rem; margin-top: 8px;">It may take 1-2 minutes for GitHub Pages to publish.</p>`;
-      } catch (error) {
-        statusDiv.innerHTML = `<div class="error-message">❌ ${escapeHtml(error.message)}</div>`;
+async function handleDeploy({ agentType, businessName, industry, websiteUrl }) {
+  const statusCard = document.createElement("div");
+  statusCard.className = "status-card";
+  statusCard.innerHTML = "🚀 Deploying to GitHub Pages...";
+  output.insertBefore(statusCard, output.firstChild);
+  statusCard.scrollIntoView({ behavior: 'smooth' });
+
+  try {
+    const res = await fetch("/api/deploy-bot", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ agentType, businessName, industry, websiteUrl })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (res.status === 401 && data.authUrl) {
+        sessionStorage.setItem('pendingDeploy', JSON.stringify({ agentType, businessName, industry, websiteUrl }));
+        window.location.href = data.authUrl;
+        return;
       }
+      throw new Error(data.error || "Deployment failed");
     }
 
-    function escapeHtml(text) {
-      if (!text) return '';
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-  </script>
+    statusCard.innerHTML = `
+      <div class="status-success">✅ Agent deployed!</div>
+      <p style="margin-top: 8px;"><b>Live URL:</b> <a href="${data.deployedUrl}" target="_blank" class="deploy-link">${data.deployedUrl}</a></p>
+      <p><b>Repo:</b> <a href="${data.repoUrl}" target="_blank" class="deploy-link">${data.repoUrl}</a></p>
+      <p style="color: #aaa; font-size: 12px; margin-top: 6px;">Takes 1-2 minutes to publish.</p>
+    `;
+
+  } catch (err) {
+    statusCard.innerHTML = `<div style="color: #ef4444;">❌ ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+</script>
+
 </body>
 </html>
