@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404DEV AI — Find Your AI Agent</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 2rem 1rem;
+      animation: fadeIn 0.8s ease-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .container { max-width: 600px; width: 100%; text-align: center; }
+    h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+    .accent { color: #7C3AED; }
+    .subtitle { color: #a1a1aa; font-size: 1.1rem; margin-bottom: 2.5rem; line-height: 1.5; }
+    .form-group { margin-bottom: 1.5rem; text-align: left; }
+    label { display: block; font-size: 0.9rem; font-weight: 500; color: #d4d4d8; margin-bottom: 0.5rem; }
+    input, select {
+      width: 100%; padding: 0.9rem 1rem;
+      background: #18181b; border: 1px solid #27272a; border-radius: 10px;
+      color: #fff; font-size: 1rem;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus { outline: none; border-color: #7C3AED; box-shadow: 0 0 0 3px rgba(124,58,237,0.2); }
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a1a1aa' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2rem;
+    }
+    button {
+      width: 100%; padding: 1rem;
+      background: #7C3AED; color: white; border: none; border-radius: 10px;
+      font-size: 1.1rem; font-weight: 600; cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 0.5rem;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    button:hover { background: #6d28d9; }
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: none;
+    }
+    button.loading .spinner { display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .results { margin-top: 2.5rem; animation: fadeIn 0.6s ease-out; }
+    .card {
+      background: #18181b; border: 1px solid #27272a; border-radius: 12px;
+      padding: 1.5rem; margin-bottom: 1.2rem; text-align: left;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover { border-color: #7C3AED; transform: translateY(-2px); }
+    .card-title { font-size: 1.3rem; font-weight: 600; color: #7C3AED; margin-bottom: 0.8rem; }
+    .card-detail { font-size: 0.95rem; color: #d4d4d8; margin-bottom: 0.5rem; line-height: 1.5; }
+    .card-label { font-weight: 600; color: #a78bfa; margin-right: 0.3rem; }
+    .cta-button {
+      display: inline-block; margin-top: 2rem;
+      padding: 1rem 2rem; background: #7C3AED; color: white;
+      text-decoration: none; border-radius: 10px; font-weight: 600;
+      transition: background 0.2s; animation: fadeIn 0.6s ease-out;
+    }
+    .cta-button:hover { background: #6d28d9; }
+    .error-message { color: #ef4444; background: #1f1315; border: 1px solid #3b1010; border-radius: 8px; padding: 1rem; margin-top: 1rem; animation: fadeIn 0.3s ease-out; }
+    @media (max-width: 480px) { h1 { font-size: 2rem; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>404<span class="accent">DEV AI</span></h1>
+    <p class="subtitle">Paste your business URL, pick your industry, and discover the AI agent your business actually needs.</p>
+    <form id="analyzeForm">
+      <div class="form-group">
+        <label for="url">Website URL</label>
+        <input type="url" id="url" placeholder="https://yourbusiness.com" required autofocus>
+      </div>
+      <div class="form-group">
+        <label for="industry">Industry</label>
+        <select id="industry" required>
+          <option value="" disabled selected>Select your industry</option>
+          <option>Real Estate</option>
+          <option>Salon/Spa</option>
+          <option>Legal</option>
+          <option>Medical/Dental</option>
+          <option>Restaurant</option>
+          <option>Contractor/Home Services</option>
+          <option>E-commerce</option>
+          <option>Coaching/Consulting</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <button type="submit" id="submitBtn">
+        <span class="button-text">Analyze My Site</span>
+        <div class="spinner"></div>
+      </button>
+    </form>
+    <div id="results" class="results" style="display: none;"></div>
+    <div id="cta-section" style="display: none;">
+      <a href="https://vladavetisian.github.io/Elite_Circle_Club/" class="cta-button" target="_blank" rel="noopener">
+        Want us to build this for you?
+      </a>
+    </div>
+  </div>
+  <script>
+    const form = document.getElementById('analyzeForm');
+    const resultsDiv = document.getElementById('results');
+    const ctaSection = document.getElementById('cta-section');
+    const submitBtn = document.getElementById('submitBtn');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const url = document.getElementById('url').value;
+      const industry = document.getElementById('industry').value;
+      submitBtn.disabled = true; submitBtn.classList.add('loading');
+      resultsDiv.style.display = 'none'; ctaSection.style.display = 'none'; resultsDiv.innerHTML = '';
+      try {
+        const response = await fetch('/api/analyze', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, industry })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Something went wrong');
+        if (data.recommendations && data.recommendations.length > 0) {
+          let html = '';
+          data.recommendations.forEach(rec => {
+            html += `<div class="card">
+              <div class="card-title">${escapeHtml(rec.agentType)}</div>
+              <div class="card-detail"><span class="card-label">Why it fits:</span>${escapeHtml(rec.whyFits)}</div>
+              <div class="card-detail"><span class="card-label">Problem solved:</span>${escapeHtml(rec.problemSolved)}</div>
+              <div class="card-detail"><span class="card-label">Estimated impact:</span>${escapeHtml(rec.estimatedImpact)}</div>
+            </div>`;
+          });
+          resultsDiv.innerHTML = html;
+          resultsDiv.style.display = 'block'; ctaSection.style.display = 'block';
+        } else if (data.rawResponse) {
+          resultsDiv.innerHTML = `<div class="card"><div class="card-detail">${escapeHtml(data.rawResponse)}</div></div>`;
+          resultsDiv.style.display = 'block'; ctaSection.style.display = 'block';
+        } else {
+          resultsDiv.innerHTML = '<p>No recommendations could be generated.</p>';
+          resultsDiv.style.display = 'block';
+        }
+      } catch (error) {
+        resultsDiv.innerHTML = `<div class="error-message">${escapeHtml(error.message)}</div>`;
+        resultsDiv.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false; submitBtn.classList.remove('loading');
+      }
+    });
+    function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+  </script>
+</body>
+</html>
