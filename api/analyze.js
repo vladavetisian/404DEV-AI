@@ -49,7 +49,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'API key not configured on server.' });
     }
 
-    // Fetch the website
     let content;
     try {
       content = await fetchWebsiteText(url);
@@ -57,7 +56,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: `Could not analyze website: ${err.message}` });
     }
 
-    // Build the prompt
     const prompt = `You are an AI business analyst. Given a business website's content and its industry, recommend 2-3 AI agent types for this business.
 
 Industry: ${industry}
@@ -74,7 +72,6 @@ Return ONLY a JSON array. No explanations, no markdown. Each object must have:
 
 Example: [{"agentType":"FAQ Chatbot","whyFits":"The site has many services listed with no FAQ section.","problemSolved":"Reduces repetitive customer questions and support tickets.","estimatedImpact":"40% reduction in support inquiries within the first month."}]`;
 
-    // Call Gemini
     let responseText;
     try {
       const result = await model.generateContent(prompt);
@@ -83,7 +80,6 @@ Example: [{"agentType":"FAQ Chatbot","whyFits":"The site has many services liste
       return res.status(500).json({ error: `AI analysis failed: ${geminiErr.message}` });
     }
 
-    // Parse the response
     try {
       const cleaned = responseText.replace(/```json|```/g, '').trim();
       const recommendations = JSON.parse(cleaned);
