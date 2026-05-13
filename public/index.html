@@ -72,6 +72,39 @@
     }
     .cta-button:hover { background: #6d28d9; }
     .error-message { color: #ef4444; background: #1f1315; border: 1px solid #3b1010; border-radius: 8px; padding: 1rem; margin-top: 1rem; animation: fadeIn 0.3s ease-out; }
+    
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-box {
+      background: #18181b; border: 1px solid #27272a; border-radius: 16px;
+      padding: 2rem; max-width: 450px; width: 90%;
+    }
+    .modal-box h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+    .modal-box p { color: #a1a1aa; margin-bottom: 1.5rem; line-height: 1.5; font-size: 0.95rem; }
+    .modal-warning { color: #fbbf24; font-size: 0.85rem; margin-bottom: 1rem; }
+    .modal-buttons { display: flex; gap: 10px; }
+    .btn-primary {
+      flex: 1; background: #7C3AED; color: white; border: none; border-radius: 10px;
+      padding: 0.8rem; font-weight: 600; cursor: pointer; font-size: 0.95rem;
+    }
+    .btn-primary:hover { background: #6d28d9; }
+    .btn-secondary {
+      flex: 1; background: #27272a; color: #a1a1aa; border: none; border-radius: 10px;
+      padding: 0.8rem; font-weight: 600; cursor: pointer; font-size: 0.95rem;
+    }
+    .btn-secondary:hover { background: #3f3f46; }
+    .deploy-badge {
+      font-size: 0.7rem; opacity: 0.6; float: right;
+      background: #7C3AED22; padding: 4px 10px; border-radius: 20px;
+    }
+    .deploy-link { color: #7C3AED; word-break: break-all; }
     @media (max-width: 480px) { h1 { font-size: 2rem; } }
   </style>
 </head>
@@ -82,7 +115,7 @@
     <form id="analyzeForm">
       <div class="form-group">
         <label for="url">Website URL</label>
-        <input type="url" id="url" placeholder="https://yourbusiness.com" required autofocus>
+        <input type="url" id="url" placeholder="https://yourbusiness.com" autofocus>
       </div>
       <div class="form-group">
         <label for="industry">Industry</label>
@@ -111,17 +144,37 @@
       </a>
     </div>
   </div>
+
   <script>
     const form = document.getElementById('analyzeForm');
     const resultsDiv = document.getElementById('results');
     const ctaSection = document.getElementById('cta-section');
     const submitBtn = document.getElementById('submitBtn');
+
+    // Check if returning from GitHub OAuth
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('deploy') === 'true') {
+      const pendingDeploy = sessionStorage.getItem('pendingDeploy');
+      if (pendingDeploy) {
+        handleDeploy(JSON.parse(pendingDeploy));
+        sessionStorage.removeItem('pendingDeploy');
+      }
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const url = document.getElementById('url').value;
       const industry = document.getElementById('industry').value;
+
+      if (!url) {
+        resultsDiv.innerHTML = '<div class="error-message">Please enter a website URL.</div>';
+        resultsDiv.style.display = 'block';
+        return;
+      }
+
       submitBtn.disabled = true; submitBtn.classList.add('loading');
       resultsDiv.style.display = 'none'; ctaSection.style.display = 'none'; resultsDiv.innerHTML = '';
+
       try {
         const response = await fetch('/api/analyze', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -129,11 +182,20 @@
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || 'Something went wrong');
+
+        const businessName = extractBusinessName(url);
+
         if (data.recommendations && data.recommendations.length > 0) {
           let html = '';
           data.recommendations.forEach(rec => {
-            html += `<div class="card">
-              <div class="card-title">${escapeHtml(rec.agentType)}</div>
+            const encodedRec = encodeURIComponent(JSON.stringify({
+              agentType: rec.agentType,
+              businessName: businessName,
+              industry: industry,
+              websiteUrl: url
+            }));
+            html += `<div class="card" style="cursor: pointer;" onclick='openDeployModal("${escapeHtml(rec.agentType)}", "${escapeHtml(businessName)}", "${escapeHtml(industry)}", "${escapeHtml(url)}")'>
+              <div class="card-title">${escapeHtml(rec.agentType)} <span class="deploy-badge">⚡ Deploy →</span></div>
               <div class="card-detail"><span class="card-label">Why it fits:</span>${escapeHtml(rec.whyFits)}</div>
               <div class="card-detail"><span class="card-label">Problem solved:</span>${escapeHtml(rec.problemSolved)}</div>
               <div class="card-detail"><span class="card-label">Estimated impact:</span>${escapeHtml(rec.estimatedImpact)}</div>
@@ -155,7 +217,95 @@
         submitBtn.disabled = false; submitBtn.classList.remove('loading');
       }
     });
-    function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+    function extractBusinessName(url) {
+      try {
+        const hostname = new URL(url).hostname;
+        return hostname.replace('www.', '').split('.')[0].replace(/-/g, ' ');
+      } catch {
+        return 'Your Business';
+      }
+    }
+
+    function openDeployModal(agentType, businessName, industry, websiteUrl) {
+      // Remove existing modal if any
+      const existingModal = document.getElementById('deployModal');
+      if (existingModal) existingModal.remove();
+
+      const modalHTML = `
+        <div class="modal-overlay" id="deployModal">
+          <div class="modal-box">
+            <h3>Deploy <span style="color: #7C3AED;">${escapeHtml(agentType)}</span></h3>
+            <p>This will create a GitHub repository with your AI agent and deploy it live to GitHub Pages — free and instant.</p>
+            <p style="color: #d4d4d8; font-size: 0.9rem;"><strong>Business:</strong> ${escapeHtml(businessName)}</p>
+            <p class="modal-warning">⚠️ One-time GitHub authorization required (free).</p>
+            <div class="modal-buttons">
+              <button class="btn-primary" id="confirmDeployBtn">Deploy Now</button>
+              <button class="btn-secondary" id="cancelDeployBtn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+      document.getElementById('confirmDeployBtn').onclick = () => {
+        document.getElementById('deployModal').remove();
+        handleDeploy({ agentType, businessName, industry, websiteUrl });
+      };
+
+      document.getElementById('cancelDeployBtn').onclick = () => {
+        document.getElementById('deployModal').remove();
+      };
+
+      document.getElementById('deployModal').onclick = function(e) {
+        if (e.target === this) this.remove();
+      };
+    }
+
+    async function handleDeploy({ agentType, businessName, industry, websiteUrl }) {
+      const statusDiv = document.createElement('div');
+      statusDiv.className = 'card';
+      statusDiv.innerHTML = '<div class="card-detail">🚀 Deploying your AI agent to GitHub Pages...</div>';
+      resultsDiv.insertBefore(statusDiv, resultsDiv.firstChild);
+      statusDiv.scrollIntoView({ behavior: 'smooth' });
+
+      try {
+        const response = await fetch('/api/deploy-bot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agentType, businessName, industry, websiteUrl })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (response.status === 401 && data.authUrl) {
+            sessionStorage.setItem('pendingDeploy', JSON.stringify({ agentType, businessName, industry, websiteUrl }));
+            window.location.href = data.authUrl;
+            return;
+          }
+          throw new Error(data.error || 'Deployment failed');
+        }
+
+        statusDiv.innerHTML = `
+          <div class="card-detail" style="color: #4ade80; font-size: 1.1rem;">✅ Agent deployed successfully!</div>
+          <div class="card-detail" style="margin-top: 12px;"><span class="card-label">Live URL:</span> <a href="${data.deployedUrl}" target="_blank" class="deploy-link">${data.deployedUrl}</a></div>
+          <div class="card-detail"><span class="card-label">Repo:</span> <a href="${data.repoUrl}" target="_blank" class="deploy-link">${data.repoUrl}</a></div>
+          <p style="color: #a1a1aa; font-size: 0.8rem; margin-top: 8px;">It may take 1-2 minutes for GitHub Pages to publish.</p>
+        `;
+
+      } catch (error) {
+        statusDiv.innerHTML = `<div class="error-message">❌ Deployment failed: ${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
   </script>
 </body>
 </html>
