@@ -6,11 +6,7 @@
 <title>404DEV AI</title>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   background: #0a0a0a;
@@ -22,24 +18,11 @@ body {
   padding: 40px 20px;
 }
 
-.container {
-  width: 100%;
-  max-width: 700px;
-}
+.container { width: 100%; max-width: 700px; }
 
-h1 {
-  font-size: 32px;
-  margin-bottom: 10px;
-}
-
-.accent {
-  color: #7C3AED;
-}
-
-.subtitle {
-  color: #aaa;
-  margin-bottom: 30px;
-}
+h1 { font-size: 32px; margin-bottom: 10px; }
+.accent { color: #7C3AED; }
+.subtitle { color: #aaa; margin-bottom: 30px; }
 
 input, select {
   width: 100%;
@@ -60,10 +43,7 @@ button {
   border-radius: 8px;
   cursor: pointer;
 }
-
-button:disabled {
-  opacity: 0.5;
-}
+button:disabled { opacity: 0.5; }
 
 .card {
   margin-top: 20px;
@@ -73,17 +53,9 @@ button:disabled {
   border-radius: 10px;
 }
 
-.title {
-  color: #7C3AED;
-  margin-bottom: 10px;
-}
+.title { color: #7C3AED; margin-bottom: 10px; }
+ul { margin-left: 18px; margin-top: 8px; }
 
-ul {
-  margin-left: 18px;
-  margin-top: 8px;
-}
-
-/* Deploy button styles */
 .deploy-btn {
   margin-top: 16px;
   background: #7C3AED;
@@ -105,43 +77,69 @@ ul {
 .modal-overlay.hidden { display: none; }
 .modal-box {
   background: #18181b; border: 1px solid #333; border-radius: 16px;
-  padding: 24px; max-width: 420px; width: 90%;
+  padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;
 }
 .modal-box h3 { font-size: 1.2rem; margin-bottom: 8px; }
 .modal-box p { color: #aaa; margin-bottom: 16px; font-size: 14px; }
+.modal-box label { display: block; color: #d4d4d8; font-size: 13px; margin-bottom: 4px; margin-top: 10px; }
+.modal-box input, .modal-box select { width: 100%; margin-bottom: 8px; }
 .modal-warning { color: #fbbf24; font-size: 13px; margin-bottom: 16px; }
-.modal-buttons { display: flex; gap: 10px; }
+.modal-buttons { display: flex; gap: 10px; margin-top: 16px; }
 .modal-buttons button { flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 14px; }
 .btn-primary { background: #7C3AED; color: white; border: none; }
 .btn-secondary { background: #27272a; color: #aaa; border: none; }
 
 .status-card {
-  margin-top: 16px;
-  padding: 14px;
-  background: #111;
-  border: 1px solid #333;
-  border-radius: 10px;
+  margin-top: 16px; padding: 14px;
+  background: #111; border: 1px solid #333; border-radius: 10px;
 }
 .status-success { color: #4ade80; }
 .deploy-link { color: #7C3AED; word-break: break-all; }
 
 .cta-card {
-  margin-top: 20px;
-  padding: 16px;
-  background: #111;
-  border: 1px solid #fbbf24;
-  border-radius: 10px;
-  text-align: center;
+  margin-top: 20px; padding: 16px;
+  background: #111; border: 1px solid #fbbf24;
+  border-radius: 10px; text-align: center;
 }
 .cta-card a {
-  display: inline-block;
-  margin-top: 10px;
-  background: #7C3AED;
-  color: white;
-  padding: 10px 24px;
-  border-radius: 8px;
-  text-decoration: none;
+  display: inline-block; margin-top: 10px;
+  background: #7C3AED; color: white;
+  padding: 10px 24px; border-radius: 8px; text-decoration: none;
 }
+
+input[type="color"] {
+  width: 60px; height: 40px; padding: 2px;
+  cursor: pointer;
+}
+
+.config-row {
+  display: flex; gap: 10px; align-items: center;
+}
+.config-row input, .config-row select { flex: 1; }
+
+.suggested-questions { margin-top: 8px; }
+.suggested-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.chip {
+  background: #27272a; color: #d4d4d8;
+  padding: 6px 12px; border-radius: 20px;
+  font-size: 12px; cursor: pointer; border: none;
+}
+.chip:hover { background: #7C3AED; color: white; }
+
+.deploy-section {
+  margin-top: 12px;
+  padding: 12px;
+  background: #0a0a0a;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+}
+.deploy-section summary {
+  color: #a78bfa;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+.deploy-section summary:hover { color: #7C3AED; }
 </style>
 
 </head>
@@ -156,11 +154,96 @@ ul {
 <input id="url" placeholder="https://yourwebsite.com"/>
 <select id="industry">
   <option value="">Select industry</option>
-  <option>Real Estate</option>
-  <option>Legal</option>
-  <option>Medical</option>
-  <option>E-commerce</option>
-  <option>Other</option>
+  <optgroup label="Health & Wellness">
+    <option>Medical/Dental</option>
+    <option>Dermatology</option>
+    <option>Chiropractic</option>
+    <option>Physical Therapy</option>
+    <option>Mental Health/Therapy</option>
+    <option>Fitness/Gym</option>
+    <option>Yoga/Pilates</option>
+    <option>Nutrition/Dietitian</option>
+    <option>Pharmacy</option>
+    <option>Veterinary</option>
+  </optgroup>
+  <optgroup label="Beauty & Personal Care">
+    <option>Salon/Spa</option>
+    <option>Barbershop</option>
+    <option>Nail Salon</option>
+    <option>Hair Salon</option>
+    <option>Barber Shop</option>
+    <option>Makeup Artist</option>
+    <option>Tattoo/Piercing</option>
+    <option>Esthetician/Skincare</option>
+  </optgroup>
+  <optgroup label="Professional Services">
+    <option>Legal</option>
+    <option>Accounting/Tax</option>
+    <option>Financial Services</option>
+    <option>Insurance</option>
+    <option>Coaching/Consulting</option>
+    <option>Marketing Agency</option>
+    <option>Web Development</option>
+    <option>IT Services</option>
+    <option>Architecture</option>
+    <option>Interior Design</option>
+  </optgroup>
+  <optgroup label="Home & Property">
+    <option>Real Estate</option>
+    <option>Property Management</option>
+    <option>Contractor/Home Services</option>
+    <option>Plumbing</option>
+    <option>Electrician</option>
+    <option>HVAC</option>
+    <option>Landscaping</option>
+    <option>Cleaning Services</option>
+    <option>Pest Control</option>
+    <option>Moving Services</option>
+  </optgroup>
+  <optgroup label="Food & Hospitality">
+    <option>Restaurant</option>
+    <option>Cafe/Coffee Shop</option>
+    <option>Bar/Nightclub</option>
+    <option>Bakery</option>
+    <option>Catering</option>
+    <option>Food Truck</option>
+    <option>Hotel/Motel</option>
+    <option>Event Planning</option>
+  </optgroup>
+  <optgroup label="Retail & E-commerce">
+    <option>E-commerce</option>
+    <option>Clothing/Fashion</option>
+    <option>Jewelry</option>
+    <option>Electronics</option>
+    <option>Home Decor</option>
+    <option>Sporting Goods</option>
+    <option>Pet Supplies</option>
+    <option>Bookstore</option>
+  </optgroup>
+  <optgroup label="Automotive">
+    <option>Automotive</option>
+    <option>Car Dealership</option>
+    <option>Auto Repair</option>
+    <option>Car Wash/Detailing</option>
+    <option>Towing</option>
+  </optgroup>
+  <optgroup label="Education & Arts">
+    <option>Education/Tutoring</option>
+    <option>Music/Entertainment</option>
+    <option>Art Gallery</option>
+    <option>Dance Studio</option>
+    <option>Photography/Video</option>
+    <option>Language School</option>
+    <option>Driving School</option>
+  </optgroup>
+  <optgroup label="Other">
+    <option>Nonprofit/Charity</option>
+    <option>Religious Organization</option>
+    <option>Transportation/Logistics</option>
+    <option>Manufacturing</option>
+    <option>Agriculture/Farming</option>
+    <option>Other</option>
+  </optgroup>
 </select>
 
 <button id="btn">Analyze</button>
@@ -173,7 +256,6 @@ ul {
 const btn = document.getElementById("btn");
 const output = document.getElementById("output");
 
-// Check if returning from GitHub OAuth
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('deploy') === 'true') {
   const pendingDeploy = sessionStorage.getItem('pendingDeploy');
@@ -215,12 +297,7 @@ btn.onclick = async () => {
   btn.innerText = "Analyze";
 };
 
-
-/* =========================
-   API ADAPTER
-========================= */
 function normalize(data) {
-
   if (data.tier === "TIER_1") {
     return {
       type: "analysis",
@@ -231,7 +308,6 @@ function normalize(data) {
       recommendations: data.recommendations || []
     };
   }
-
   if (data.tier === "TIER_2") {
     return {
       type: "agent",
@@ -243,7 +319,6 @@ function normalize(data) {
       deployable: true
     };
   }
-
   if (data.tier === "TIER_3") {
     return {
       type: "system",
@@ -254,21 +329,11 @@ function normalize(data) {
       interaction: data.system?.interaction || ""
     };
   }
-
-  return {
-    type: "unknown",
-    raw: data
-  };
+  return { type: "unknown", raw: data };
 }
 
-
-/* =========================
-   RENDER LAYER
-========================= */
 function render(data, url, industry) {
-
   output.innerHTML = "";
-
   const card = document.createElement("div");
   card.className = "card";
 
@@ -276,13 +341,10 @@ function render(data, url, industry) {
     card.innerHTML = `
       <div class="title">🔍 ${data.title}</div>
       <p>${data.summary}</p>
-
       <h4>Problems</h4>
       <ul>${data.problems.map(x => `<li>${x}</li>`).join("")}</ul>
-
       <h4>Revenue Leaks</h4>
       <ul>${data.revenueLeaks.map(x => `<li>${x}</li>`).join("")}</ul>
-
       <h4>Recommendations</h4>
       <ul>${data.recommendations.map(x => `<li>${x}</li>`).join("")}</ul>
     `;
@@ -292,32 +354,24 @@ function render(data, url, industry) {
     card.innerHTML = `
       <div class="title">⚡ ${data.title}</div>
       <p><b>Role:</b> ${data.role}</p>
-
       <h4>Functions</h4>
       <ul>${data.functions.map(x => `<li>${x}</li>`).join("")}</ul>
-
       <p><b>Impact:</b> ${data.impact}</p>
       <p><b>Use:</b> ${data.interaction}</p>
-
-      <button class="deploy-btn" id="deployBtn">⚡ Deploy This Agent</button>
+      <button class="deploy-btn" id="deployBtn">⚡ Customize & Deploy</button>
     `;
   }
 
   if (data.type === "system") {
     card.innerHTML = `
       <div class="title">🚀 ${data.title}</div>
-
       <h4>Agents</h4>
       <ul>${data.agents.map(x => `<li>${x}</li>`).join("")}</ul>
-
       <h4>Capabilities</h4>
       <ul>${data.capabilities.map(x => `<li>${x}</li>`).join("")}</ul>
-
       <p><b>Impact:</b> ${data.impact}</p>
       <p><b>Use:</b> ${data.interaction}</p>
     `;
-
-    // Premium CTA card
     const ctaCard = document.createElement("div");
     ctaCard.className = "cta-card";
     ctaCard.innerHTML = `
@@ -335,13 +389,12 @@ function render(data, url, industry) {
 
   output.appendChild(card);
 
-  // Attach deploy button listener if agent type
   if (data.type === "agent") {
     const deployBtn = document.getElementById("deployBtn");
     if (deployBtn) {
       deployBtn.onclick = () => {
         const businessName = extractBusinessName(url);
-        openDeployModal(data.title, businessName, industry, url);
+        openCustomizeModal(data.title, businessName, industry, url);
       };
     }
   }
@@ -354,39 +407,90 @@ function extractBusinessName(url) {
   } catch { return 'Your Business'; }
 }
 
-/* =========================
-   DEPLOY MODAL
-========================= */
-function openDeployModal(agentName, businessName, industry, url) {
-  const existing = document.getElementById('deployModal');
+function openCustomizeModal(agentName, businessName, industry, url) {
+  const existing = document.getElementById('customizeModal');
   if (existing) existing.remove();
 
   const modal = document.createElement("div");
   modal.className = "modal-overlay";
-  modal.id = "deployModal";
+  modal.id = "customizeModal";
   modal.innerHTML = `
     <div class="modal-box">
-      <h3>Deploy <span style="color: #7C3AED;">${escapeHtml(agentName)}</span></h3>
-      <p>Create a GitHub repository and deploy your AI agent live to GitHub Pages — free and instant.</p>
-      <p style="color: #d4d4d8; font-size: 14px;"><b>Business:</b> ${escapeHtml(businessName)}</p>
+      <h3>Customize Your <span style="color: #7C3AED;">${escapeHtml(agentName)}</span></h3>
+      <p style="color: #aaa; font-size: 13px;">For: ${escapeHtml(businessName)}</p>
+
+      <label>🤖 Agent Header Text</label>
+      <input id="cfgHeader" value="${escapeHtml(agentName)}" placeholder="e.g. Music Lesson Bot"/>
+
+      <label>💬 Welcome Message</label>
+      <input id="cfgGreeting" value="Hi! How can I help you today?" placeholder="Greeting message"/>
+
+      <label>🎨 Agent Color</label>
+      <div class="config-row">
+        <input type="color" id="cfgColor" value="#7C3AED"/>
+        <input type="text" id="cfgColorHex" value="#7C3AED" placeholder="#HEX" style="flex:2;"/>
+      </div>
+
+      <label>📐 Widget Size</label>
+      <select id="cfgSize">
+        <option value="small">Small (320px)</option>
+        <option value="medium" selected>Medium (400px)</option>
+        <option value="large">Large (500px)</option>
+      </select>
+
+      <label>📍 Widget Position</label>
+      <select id="cfgPosition">
+        <option value="bottom-right" selected>Bottom Right</option>
+        <option value="bottom-left">Bottom Left</option>
+      </select>
+
+      <label>💡 Suggested Questions (comma separated)</label>
+      <input id="cfgSuggestions" value="What services do you offer?,How do I book?,What are your prices?,Tell me more about the lessons" placeholder="Question 1, Question 2, Question 3"/>
+
+      <label>📝 Message Style</label>
+      <select id="cfgStyle">
+        <option value="rounded" selected>Rounded Bubbles</option>
+        <option value="square">Square Bubbles</option>
+        <option value="minimal">Minimal Lines</option>
+      </select>
+
       <p class="modal-warning">⚠️ One-time GitHub authorization required (free).</p>
       <div class="modal-buttons">
-        <button class="btn-primary" id="confirmDeploy">Deploy Now</button>
-        <button class="btn-secondary" id="cancelDeploy">Cancel</button>
+        <button class="btn-primary" id="confirmCustomize">Deploy Now</button>
+        <button class="btn-secondary" id="cancelCustomize">Cancel</button>
       </div>
     </div>
   `;
   document.body.appendChild(modal);
 
-  document.getElementById("confirmDeploy").onclick = () => {
-    modal.remove();
-    handleDeploy({ agentType: agentName, businessName, industry, websiteUrl: url });
+  document.getElementById("cfgColor").oninput = function() {
+    document.getElementById("cfgColorHex").value = this.value;
   };
-  document.getElementById("cancelDeploy").onclick = () => modal.remove();
+  document.getElementById("cfgColorHex").oninput = function() {
+    if (this.value.match(/^#[0-9a-fA-F]{6}$/)) {
+      document.getElementById("cfgColor").value = this.value;
+    }
+  };
+
+  document.getElementById("confirmCustomize").onclick = () => {
+    const config = {
+      header: document.getElementById("cfgHeader").value,
+      greeting: document.getElementById("cfgGreeting").value,
+      color: document.getElementById("cfgColor").value,
+      size: document.getElementById("cfgSize").value,
+      position: document.getElementById("cfgPosition").value,
+      suggestions: document.getElementById("cfgSuggestions").value,
+      style: document.getElementById("cfgStyle").value
+    };
+    modal.remove();
+    handleDeploy({ agentType: agentName, businessName, industry, websiteUrl: url, config });
+  };
+
+  document.getElementById("cancelCustomize").onclick = () => modal.remove();
   modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 }
 
-async function handleDeploy({ agentType, businessName, industry, websiteUrl }) {
+async function handleDeploy({ agentType, businessName, industry, websiteUrl, config }) {
   const statusCard = document.createElement("div");
   statusCard.className = "status-card";
   statusCard.innerHTML = "🚀 Deploying to GitHub Pages...";
@@ -397,13 +501,13 @@ async function handleDeploy({ agentType, businessName, industry, websiteUrl }) {
     const res = await fetch("/api/deploy-bot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ agentType, businessName, industry, websiteUrl })
+      body: JSON.stringify({ agentType, businessName, industry, websiteUrl, config })
     });
     const data = await res.json();
 
     if (!res.ok) {
       if (res.status === 401 && data.authUrl) {
-        sessionStorage.setItem('pendingDeploy', JSON.stringify({ agentType, businessName, industry, websiteUrl }));
+        sessionStorage.setItem('pendingDeploy', JSON.stringify({ agentType, businessName, industry, websiteUrl, config }));
         window.location.href = data.authUrl;
         return;
       }
@@ -416,7 +520,6 @@ async function handleDeploy({ agentType, businessName, industry, websiteUrl }) {
       <p><b>Repo:</b> <a href="${data.repoUrl}" target="_blank" class="deploy-link">${data.repoUrl}</a></p>
       <p style="color: #aaa; font-size: 12px; margin-top: 6px;">Takes 1-2 minutes to publish.</p>
     `;
-
   } catch (err) {
     statusCard.innerHTML = `<div style="color: #ef4444;">❌ ${escapeHtml(err.message)}</div>`;
   }
