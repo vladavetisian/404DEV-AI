@@ -1,8 +1,3 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-
 async function fetchWebsiteText(url) {
   try {
     const res = await fetch(url, {
@@ -79,7 +74,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'URL and industry required.' });
     }
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.GROQ_API_KEY) {
       return res.status(500).json({ error: 'API key not configured.' });
     }
 
@@ -160,14 +155,37 @@ OUTPUT FORMAT:
 RETURN ONLY VALID JSON. NO TEXT. NO MARKDOWN.
 `;
 
-    let responseText;
-    try {
-      const result = await model.generateContent(prompt);
-      responseText = result.response.text();
-    } catch (err) {
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 2000,
+      }),
+    });
+
+    if (!groqRes.ok) {
+      const errText = await groqRes.text();
       return res.status(500).json({
-        error: `AI generation failed: ${err.message}`,
+        error: `AI generation failed: ${groqRes.status} - ${errText.slice(0, 200)}`,
       });
+    }
+
+    const groqData = await groqRes.json();
+    const responseText = groqData.choices?.[0]?.message?.content || '';
+
+    if (!responseText) {
+      return res.status(500).json({ error: 'Empty response from AI.' });
     }
 
     const parsed = safeJsonParse(responseText);
