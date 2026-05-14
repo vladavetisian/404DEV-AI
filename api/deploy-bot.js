@@ -1,15 +1,3 @@
-function parseCookies(cookieHeader) {
-  const cookies = {};
-  if (!cookieHeader) return cookies;
-  cookieHeader.split(';').forEach(cookie => {
-    const parts = cookie.split('=');
-    if (parts.length >= 2) {
-      cookies[parts[0].trim()] = decodeURIComponent(parts.slice(1).join('=').trim());
-    }
-  });
-  return cookies;
-}
-
 async function createRepo(token, repoName, description) {
   const res = await fetch('https://api.github.com/user/repos', {
     method: 'POST',
@@ -102,29 +90,27 @@ function generateBotHTML(agentName, businessName, industry, config) {
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Cookie');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    var cookies = parseCookies(req.headers.cookie || '');
-    var token = cookies.github_token;
-
-    if (!token) {
-      return res.status(401).json({
-        error: 'GitHub authentication required',
-        authUrl: 'https://' + req.headers.host + '/api/github-oauth'
-      });
-    }
-
     var body = req.body;
+    var token = body.token;
     var agentType = body.agentType;
     var businessName = body.businessName;
     var industry = body.industry;
     var websiteUrl = body.websiteUrl;
     var config = body.config;
+
+    if (!token) {
+      return res.status(401).json({
+        error: 'GitHub token required',
+        authUrl: 'https://' + req.headers.host + '/api/github-oauth'
+      });
+    }
 
     if (!agentType || !businessName) {
       return res.status(400).json({ error: 'Agent type and business name required.' });
