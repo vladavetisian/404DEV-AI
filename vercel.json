@@ -1,7 +1,0 @@
-{
-  "functions": {
-    "api/*.js": {
-      "runtime": "22.x"
-    }
-  }
-}
