@@ -26,6 +26,7 @@ export default async function handler(req, res) {
         'Set-Cookie',
         `github_token=${tokenData.access_token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600`
       );
+      // Redirect to homepage with deploy trigger
       return res.redirect('/?deploy=true');
     } else {
       return res.status(400).send('GitHub auth failed. Please try again.');
