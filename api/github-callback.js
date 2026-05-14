@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const { code } = req.query;
+  const { code, state } = req.query;
 
   if (!code) {
     return res.status(400).send('Missing authorization code.');
@@ -26,8 +26,9 @@ export default async function handler(req, res) {
         'Set-Cookie',
         `github_token=${tokenData.access_token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600`
       );
-      // Redirect to homepage with deploy trigger
-      return res.redirect('/?deploy=true');
+      // Redirect with state to trigger deploy
+      const redirectUrl = state ? `/?deploy=true&data=${state}` : '/?deploy=true';
+      return res.redirect(redirectUrl);
     } else {
       return res.status(400).send('GitHub auth failed. Please try again.');
     }
