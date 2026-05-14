@@ -2,9 +2,9 @@ function parseCookies(cookieHeader) {
   const cookies = {};
   if (!cookieHeader) return cookies;
   cookieHeader.split(';').forEach(cookie => {
-    const [name, ...rest] = cookie.split('=');
-    if (name && rest.length) {
-      cookies[name.trim()] = decodeURIComponent(rest.join('=').trim());
+    const parts = cookie.split('=');
+    if (parts.length >= 2) {
+      cookies[parts[0].trim()] = decodeURIComponent(parts.slice(1).join('=').trim());
     }
   });
   return cookies;
@@ -14,9 +14,10 @@ async function createRepo(token, repoName, description) {
   const res = await fetch('https://api.github.com/user/repos', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      'Authorization': 'Bearer ' + token,
       'Accept': 'application/vnd.github+json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'User-Agent': '404DEV-AI'
     },
     body: JSON.stringify({
       name: repoName,
@@ -34,12 +35,13 @@ async function createRepo(token, repoName, description) {
 
 async function createFile(token, owner, repo, path, content, message) {
   const base64Content = Buffer.from(content).toString('base64');
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+  const res = await fetch('https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path, {
     method: 'PUT',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      'Authorization': 'Bearer ' + token,
       'Accept': 'application/vnd.github+json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'User-Agent': '404DEV-AI'
     },
     body: JSON.stringify({
       message: message,
@@ -54,12 +56,13 @@ async function createFile(token, owner, repo, path, content, message) {
 }
 
 async function enablePages(token, owner, repo) {
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/pages`, {
+  const res = await fetch('https://api.github.com/repos/' + owner + '/' + repo + '/pages', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
+      'Authorization': 'Bearer ' + token,
       'Accept': 'application/vnd.github+json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'User-Agent': '404DEV-AI'
     },
     body: JSON.stringify({
       source: { branch: 'main', path: '/' }
@@ -71,247 +74,33 @@ async function enablePages(token, owner, repo) {
   }
 }
 
-function generateBotHTML(agentName, businessName, industry, config = {}) {
+function generateBotHTML(agentName, businessName, industry, config) {
+  config = config || {};
   const color = config.color || '#7C3AED';
   const header = config.header || agentName;
-  const greeting = config.greeting || `Hi! I'm the ${agentName} for ${businessName}. How can I help you today?`;
-  const suggestions = config.suggestions ? config.suggestions.split(',').map(s => s.trim()).filter(Boolean) : ['What services do you offer?', 'How do I book?'];
+  const greeting = config.greeting || 'Hi! How can I help you today?';
+  const suggestions = config.suggestions ? config.suggestions.split(',').map(function(s) { return s.trim(); }).filter(Boolean) : ['What services do you offer?'];
   const position = config.position || 'bottom-right';
   const size = config.size || 'medium';
   const style = config.style || 'rounded';
 
-  const sizeMap = { small: 320, medium: 400, large: 500 };
-  const width = sizeMap[size] || 400;
-  const posStyles = position === 'bottom-left'
-    ? 'left: 20px; right: auto;'
-    : 'right: 20px; left: auto;';
+  var width = 400;
+  if (size === 'small') width = 320;
+  if (size === 'large') width = 500;
 
-  const borderRadius = style === 'square' ? '4px' : style === 'minimal' ? '8px' : '16px';
-  const msgRadius = style === 'square' ? '4px' : style === 'minimal' ? '8px' : '16px';
+  var posStyles = 'right: 20px; left: auto;';
+  if (position === 'bottom-left') posStyles = 'left: 20px; right: auto;';
 
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${header} | ${businessName}</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: transparent;
-      font-family: system-ui, -apple-system, sans-serif;
-      overflow: hidden;
-    }
-    .widget-container {
-      position: fixed;
-      bottom: 20px;
-      ${posStyles}
-      width: ${width}px;
-      max-height: 600px;
-      background: #ffffff;
-      border-radius: ${borderRadius};
-      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      z-index: 9999;
-      font-size: 14px;
-    }
-    .widget-header {
-      background: ${color};
-      color: white;
-      padding: 16px 20px;
-      font-weight: 600;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .widget-header .status-dot {
-      width: 10px; height: 10px;
-      background: #4ade80;
-      border-radius: 50%;
-      display: inline-block;
-    }
-    .widget-header small {
-      font-weight: 400;
-      opacity: 0.8;
-      font-size: 11px;
-      display: block;
-    }
-    .widget-messages {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-      max-height: 300px;
-      background: #f9fafb;
-    }
-    .message {
-      margin-bottom: 12px;
-      animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .bot-message {
-      background: #f3f4f6;
-      color: #1f2937;
-      padding: 10px 14px;
-      border-radius: ${msgRadius} ${msgRadius} ${msgRadius} 4px;
-      display: inline-block;
-      max-width: 85%;
-      line-height: 1.5;
-    }
-    .user-message { text-align: right; }
-    .user-message div {
-      background: ${color};
-      color: white;
-      padding: 10px 14px;
-      border-radius: ${msgRadius} ${msgRadius} 4px ${msgRadius};
-      display: inline-block;
-      max-width: 85%;
-      line-height: 1.5;
-    }
-    .suggestions {
-      padding: 8px 16px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      background: #f9fafb;
-      border-top: 1px solid #e5e7eb;
-    }
-    .suggestion-chip {
-      background: white;
-      border: 1px solid #d1d5db;
-      color: #374151;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .suggestion-chip:hover {
-      background: ${color};
-      color: white;
-      border-color: ${color};
-    }
-    .widget-input {
-      display: flex;
-      padding: 12px 16px;
-      background: white;
-      border-top: 1px solid #e5e7eb;
-    }
-    .widget-input input {
-      flex: 1;
-      padding: 10px 14px;
-      border: 1px solid #d1d5db;
-      border-radius: 24px;
-      font-size: 14px;
-      outline: none;
-      color: #1f2937;
-    }
-    .widget-input input:focus { border-color: ${color}; }
-    .widget-input button {
-      background: ${color};
-      border: none;
-      width: 40px; height: 40px;
-      border-radius: 50%;
-      cursor: pointer;
-      margin-left: 8px;
-      color: white;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-    .widget-input button:hover { opacity: 0.9; }
-    .powered-by {
-      text-align: center;
-      font-size: 10px;
-      color: #9ca3af;
-      padding: 6px;
-      background: #f9fafb;
-    }
-    .powered-by a { color: #9ca3af; text-decoration: none; }
-  </style>
-</head>
-<body>
-  <div class="widget-container">
-    <div class="widget-header">
-      <span class="status-dot"></span>
-      <div>
-        ${header}
-        <small>${businessName}</small>
-      </div>
-    </div>
-    <div class="suggestions" id="suggestions">
-      ${suggestions.map(s => `<span class="suggestion-chip" onclick="sendSuggestion('${s.replace(/'/g, "\\'")}')">${s}</span>`).join('')}
-    </div>
-    <div class="widget-messages" id="messages">
-      <div class="message">
-        <div class="bot-message">${greeting}</div>
-      </div>
-    </div>
-    <div class="widget-input">
-      <input type="text" id="userInput" placeholder="Type your message..." autofocus>
-      <button onclick="sendMessage()">➤</button>
-    </div>
-    <div class="powered-by">Powered by <a href="https://404devai.vercel.app" target="_blank">404DEV AI</a></div>
-  </div>
+  var borderRadius = '16px';
+  var msgRadius = '16px';
+  if (style === 'square') { borderRadius = '4px'; msgRadius = '4px'; }
+  if (style === 'minimal') { borderRadius = '8px'; msgRadius = '8px'; }
 
-  <script>
-    const messages = document.getElementById('messages');
-    const input = document.getElementById('userInput');
-    const suggestionsDiv = document.getElementById('suggestions');
-
-    const responses = {
-      'hello': "Hi there! How can I assist you today?",
-      'hi': "Hello! What can I help you with?",
-      'help': "I'm here to help! Tell me what you're looking for.",
-      'price': "We'd love to discuss pricing with you! Please leave your contact info and we'll get back to you.",
-      'contact': "You can reach us through this chat, or leave your email and we'll follow up.",
-      'book': "I can help you schedule! What service are you interested in?",
-      'default': "Thanks for your message! Our team will follow up with you shortly. Feel free to ask anything else."
-    };
-
-    function sendSuggestion(text) {
-      input.value = text;
-      sendMessage();
-    }
-
-    function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
-
-      messages.innerHTML += '<div class="message user-message"><div>' + escapeHtml(text) + '</div></div>';
-      suggestionsDiv.style.display = 'none';
-
-      setTimeout(() => {
-        const lowerText = text.toLowerCase();
-        let reply = responses.default;
-        for (const [key, value] of Object.entries(responses)) {
-          if (lowerText.includes(key)) { reply = value; break; }
-        }
-        messages.innerHTML += '<div class="message"><div class="bot-message">' + reply + '</div></div>';
-        messages.scrollTop = messages.scrollHeight;
-      }, 600);
-
-      input.value = '';
-      messages.scrollTop = messages.scrollHeight;
-    }
-
-    input.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') sendMessage();
-    });
-
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-  </script>
-</body>
-</html>`;
+  return '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>' + header + ' | ' + businessName + '</title>\n<style>\n*{margin:0;padding:0;box-sizing:border-box}\nbody{background:transparent;font-family:system-ui,sans-serif;overflow:hidden}\n.widget-container{position:fixed;bottom:20px;' + posStyles + 'width:' + width + 'px;max-height:600px;background:#fff;border-radius:' + borderRadius + ';box-shadow:0 8px 32px rgba(0,0,0,0.15);overflow:hidden;display:flex;flex-direction:column;z-index:9999;font-size:14px}\n.widget-header{background:' + color + ';color:#fff;padding:16px 20px;font-weight:600;font-size:16px;display:flex;align-items:center;gap:10px}\n.widget-header .dot{width:10px;height:10px;background:#4ade80;border-radius:50%}\n.widget-header small{font-weight:400;opacity:0.8;font-size:11px;display:block}\n.widget-messages{flex:1;padding:16px;overflow-y:auto;max-height:300px;background:#f9fafb}\n.message{margin-bottom:12px;animation:fadeIn 0.3s}\n@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}\n.bot-message{background:#f3f4f6;color:#1f2937;padding:10px 14px;border-radius:' + msgRadius + ' ' + msgRadius + ' ' + msgRadius + ' 4px;display:inline-block;max-width:85%;line-height:1.5}\n.user-message{text-align:right}\n.user-message div{background:' + color + ';color:#fff;padding:10px 14px;border-radius:' + msgRadius + ' ' + msgRadius + ' 4px ' + msgRadius + ';display:inline-block;max-width:85%;line-height:1.5}\n.suggestions{padding:8px 16px;display:flex;flex-wrap:wrap;gap:6px;background:#f9fafb;border-top:1px solid #e5e7eb}\n.chip{background:#fff;border:1px solid #d1d5db;color:#374151;padding:6px 12px;border-radius:20px;font-size:12px;cursor:pointer}\n.chip:hover{background:' + color + ';color:#fff;border-color:' + color + '}\n.widget-input{display:flex;padding:12px 16px;background:#fff;border-top:1px solid #e5e7eb}\n.widget-input input{flex:1;padding:10px 14px;border:1px solid #d1d5db;border-radius:24px;font-size:14px;outline:none}\n.widget-input input:focus{border-color:' + color + '}\n.widget-input button{background:' + color + ';border:none;width:40px;height:40px;border-radius:50%;cursor:pointer;margin-left:8px;color:#fff;font-size:18px}\n.powered{text-align:center;font-size:10px;color:#9ca3af;padding:6px;background:#f9fafb}\n</style>\n</head>\n<body>\n<div class="widget-container">\n<div class="widget-header"><span class="dot"></span><div>' + header + '<small>' + businessName + '</small></div></div>\n<div class="suggestions" id="sug">' + suggestions.map(function(s){return '<span class="chip" onclick="sendSug(\'' + s.replace(/'/g,"\\'") + '\')">' + s + '</span>';}).join('') + '</div>\n<div class="widget-messages" id="msgs"><div class="message"><div class="bot-message">' + greeting + '</div></div></div>\n<div class="widget-input"><input id="inp" placeholder="Type your message..." autofocus><button onclick="send()">➤</button></div>\n<div class="powered">Powered by 404DEV AI</div>\n</div>\n<script>\nvar msgs=document.getElementById("msgs"),inp=document.getElementById("inp"),sug=document.getElementById("sug");\nvar r={hello:"Hi there! How can I help?",hi:"Hello! What can I help you with?",help:"I\'m here to help! Tell me what you need.",price:"We\'d love to discuss pricing! Leave your contact info.",contact:"You can reach us here or leave your email.",book:"I can help you schedule! What service?",default:"Thanks! Our team will follow up shortly."};\nfunction sendSug(t){inp.value=t;send()}\nfunction send(){var t=inp.value.trim();if(!t)return;msgs.innerHTML+=\'<div class="message user-message"><div>\'+t+\'</div></div>\';sug.style.display="none";setTimeout(function(){var l=t.toLowerCase(),re=r.default;for(var k in r){if(l.indexOf(k)>=0){re=r[k];break}}msgs.innerHTML+=\'<div class="message"><div class="bot-message">\'+re+\'</div></div>\';msgs.scrollTop=msgs.scrollHeight},600);inp.value="";msgs.scrollTop=msgs.scrollHeight}\ninp.addEventListener("keypress",function(e){if(e.key==="Enter")send()});\n</script>\n</body>\n</html>';
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Cookie');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -320,26 +109,30 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const cookies = parseCookies(req.headers.cookie || '');
-    const token = cookies.github_token;
+    var cookies = parseCookies(req.headers.cookie || '');
+    var token = cookies.github_token;
 
     if (!token) {
-      const host = req.headers.host;
       return res.status(401).json({
         error: 'GitHub authentication required',
-        authUrl: `https://${host}/api/github-oauth`
+        authUrl: 'https://' + req.headers.host + '/api/github-oauth'
       });
     }
 
-    const { agentType, businessName, industry, websiteUrl, config } = req.body;
+    var body = req.body;
+    var agentType = body.agentType;
+    var businessName = body.businessName;
+    var industry = body.industry;
+    var websiteUrl = body.websiteUrl;
+    var config = body.config;
 
     if (!agentType || !businessName) {
       return res.status(400).json({ error: 'Agent type and business name required.' });
     }
 
-    const userRes = await fetch('https://api.github.com/user', {
+    var userRes = await fetch('https://api.github.com/user', {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': 'Bearer ' + token,
         'Accept': 'application/vnd.github+json',
         'User-Agent': '404DEV-AI'
       }
@@ -348,36 +141,36 @@ export default async function handler(req, res) {
     if (!userRes.ok) {
       return res.status(401).json({
         error: 'Invalid GitHub token.',
-        authUrl: `https://${req.headers.host}/api/github-oauth`
+        authUrl: 'https://' + req.headers.host + '/api/github-oauth'
       });
     }
 
-    const userData = await userRes.json();
-    const username = userData.login;
+    var userData = await userRes.json();
+    var username = userData.login;
 
-    const safeName = businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 25);
-    const repoName = `${safeName}-ai-agent`;
+    var safeName = businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 25);
+    var repoName = safeName + '-ai-agent';
 
-    await createRepo(token, repoName, `AI Chat Agent for ${businessName}`);
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await createRepo(token, repoName, 'AI Chat Agent for ' + businessName);
+    await new Promise(function(resolve) { setTimeout(resolve, 2000); });
 
-    const botHTML = generateBotHTML(agentType, businessName, industry, config);
+    var botHTML = generateBotHTML(agentType, businessName, industry, config);
     await createFile(token, username, repoName, 'index.html', botHTML, 'Add AI chat widget');
-    await createFile(token, username, repoName, 'README.md', `# ${agentType} for ${businessName}\n\nAI Chat Widget built with [404DEV AI](https://404devai.vercel.app)\n\nIndustry: ${industry}\nWebsite: ${websiteUrl || 'N/A'}\n\n## How to use\n\nCopy this HTML into your website to embed the chat widget.`, 'Add README');
+    await createFile(token, username, repoName, 'README.md', '# ' + agentType + ' for ' + businessName + '\n\nBuilt with 404DEV AI\n\nIndustry: ' + industry, 'Add README');
 
     await enablePages(token, username, repoName);
 
-    const deployedUrl = `https://${username}.github.io/${repoName}`;
+    var deployedUrl = 'https://' + username + '.github.io/' + repoName;
 
     return res.status(200).json({
       success: true,
-      repoUrl: `https://github.com/${username}/${repoName}`,
+      repoUrl: 'https://github.com/' + username + '/' + repoName,
       deployedUrl: deployedUrl,
       message: 'Agent deployed! May take 1-2 minutes to publish.'
     });
 
   } catch (err) {
     console.error('Deploy error:', err);
-    return res.status(500).json({ error: `Deployment failed: ${err.message}` });
+    return res.status(500).json({ error: 'Deployment failed: ' + err.message });
   }
 }
