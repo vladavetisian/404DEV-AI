@@ -24,13 +24,17 @@ export default async function handler(req, res) {
     if (tokenData.access_token) {
       res.setHeader(
         'Set-Cookie',
-        `github_token=${tokenData.access_token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600`
+        'github_token=' + tokenData.access_token + '; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600'
       );
-      // Redirect with state to trigger deploy
-      const redirectUrl = state ? `/?deploy=true&data=${state}` : '/?deploy=true';
-      return res.redirect(redirectUrl);
+      
+      let redirectTo = '/?deploy=true';
+      if (state && state.length > 0) {
+        redirectTo = '/?deploy=true&data=' + encodeURIComponent(state);
+      }
+      
+      return res.redirect(redirectTo);
     } else {
-      return res.status(400).send('GitHub auth failed. Please try again.');
+      return res.status(400).send('GitHub auth failed.');
     }
   } catch (err) {
     return res.status(500).send('Auth server error.');
