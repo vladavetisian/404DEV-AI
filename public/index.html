@@ -162,15 +162,18 @@ input[type="color"] {
 const btn = document.getElementById("btn");
 const output = document.getElementById("output");
 
-// Resume deploy from URL state (bypasses cookie issues)
+// Resume deploy from URL (token + data)
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('deploy') === 'true') {
+  const token = urlParams.get('token');
   const dataParam = urlParams.get('data');
-  if (dataParam) {
+  if (token && dataParam) {
     setTimeout(() => {
-      handleDeploy(JSON.parse(decodeURIComponent(dataParam)));
+      var deployInfo = JSON.parse(decodeURIComponent(dataParam));
+      deployInfo.token = token;
+      handleDeploy(deployInfo);
       window.history.replaceState({}, document.title, '/');
-    }, 1000);
+    }, 500);
   }
 }
 
@@ -326,7 +329,8 @@ function openCustomizeModal(agentName, businessName, industry, url) {
   modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 }
 
-async function handleDeploy({ agentType, businessName, industry, websiteUrl, config }) {
+async function handleDeploy(info) {
+  const { agentType, businessName, industry, websiteUrl, config, token } = info;
   const statusCard = document.createElement("div");
   statusCard.className = "status-card";
   statusCard.innerHTML = "Deploying to GitHub Pages...";
@@ -337,13 +341,12 @@ async function handleDeploy({ agentType, businessName, industry, websiteUrl, con
     const res = await fetch("/api/deploy-bot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ agentType, businessName, industry, websiteUrl, config })
+      body: JSON.stringify({ token: token || '', agentType, businessName, industry, websiteUrl, config })
     });
     const data = await res.json();
 
     if (!res.ok) {
       if (res.status === 401 && data.authUrl) {
-        // Pass deploy data through URL state parameter instead of sessionStorage
         const deployData = encodeURIComponent(JSON.stringify({ agentType, businessName, industry, websiteUrl, config }));
         window.location.href = data.authUrl + '?data=' + deployData;
         return;
