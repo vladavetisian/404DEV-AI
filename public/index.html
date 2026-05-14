@@ -162,15 +162,15 @@ input[type="color"] {
 const btn = document.getElementById("btn");
 const output = document.getElementById("output");
 
+// Resume deploy from URL state (bypasses cookie issues)
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('deploy') === 'true') {
-  const pendingDeploy = sessionStorage.getItem('pendingDeploy');
-  if (pendingDeploy) {
+  const dataParam = urlParams.get('data');
+  if (dataParam) {
     setTimeout(() => {
-      handleDeploy(JSON.parse(pendingDeploy));
-      sessionStorage.removeItem('pendingDeploy');
+      handleDeploy(JSON.parse(decodeURIComponent(dataParam)));
       window.history.replaceState({}, document.title, '/');
-    }, 800);
+    }, 1000);
   }
 }
 
@@ -343,8 +343,9 @@ async function handleDeploy({ agentType, businessName, industry, websiteUrl, con
 
     if (!res.ok) {
       if (res.status === 401 && data.authUrl) {
-        sessionStorage.setItem('pendingDeploy', JSON.stringify({ agentType, businessName, industry, websiteUrl, config }));
-        window.location.href = data.authUrl;
+        // Pass deploy data through URL state parameter instead of sessionStorage
+        const deployData = encodeURIComponent(JSON.stringify({ agentType, businessName, industry, websiteUrl, config }));
+        window.location.href = data.authUrl + '?data=' + deployData;
         return;
       }
       throw new Error(data.error || "Deployment failed");
