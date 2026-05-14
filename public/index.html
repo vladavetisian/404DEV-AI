@@ -116,30 +116,6 @@ input[type="color"] {
   display: flex; gap: 10px; align-items: center;
 }
 .config-row input, .config-row select { flex: 1; }
-
-.suggested-questions { margin-top: 8px; }
-.suggested-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.chip {
-  background: #27272a; color: #d4d4d8;
-  padding: 6px 12px; border-radius: 20px;
-  font-size: 12px; cursor: pointer; border: none;
-}
-.chip:hover { background: #7C3AED; color: white; }
-
-.deploy-section {
-  margin-top: 12px;
-  padding: 12px;
-  background: #0a0a0a;
-  border: 1px solid #27272a;
-  border-radius: 8px;
-}
-.deploy-section summary {
-  color: #a78bfa;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-}
-.deploy-section summary:hover { color: #7C3AED; }
 </style>
 
 </head>
@@ -154,96 +130,26 @@ input[type="color"] {
 <input id="url" placeholder="https://yourwebsite.com"/>
 <select id="industry">
   <option value="">Select industry</option>
-  <optgroup label="Health & Wellness">
-    <option>Medical/Dental</option>
-    <option>Dermatology</option>
-    <option>Chiropractic</option>
-    <option>Physical Therapy</option>
-    <option>Mental Health/Therapy</option>
-    <option>Fitness/Gym</option>
-    <option>Yoga/Pilates</option>
-    <option>Nutrition/Dietitian</option>
-    <option>Pharmacy</option>
-    <option>Veterinary</option>
-  </optgroup>
-  <optgroup label="Beauty & Personal Care">
-    <option>Salon/Spa</option>
-    <option>Barbershop</option>
-    <option>Nail Salon</option>
-    <option>Hair Salon</option>
-    <option>Barber Shop</option>
-    <option>Makeup Artist</option>
-    <option>Tattoo/Piercing</option>
-    <option>Esthetician/Skincare</option>
-  </optgroup>
-  <optgroup label="Professional Services">
-    <option>Legal</option>
-    <option>Accounting/Tax</option>
-    <option>Financial Services</option>
-    <option>Insurance</option>
-    <option>Coaching/Consulting</option>
-    <option>Marketing Agency</option>
-    <option>Web Development</option>
-    <option>IT Services</option>
-    <option>Architecture</option>
-    <option>Interior Design</option>
-  </optgroup>
-  <optgroup label="Home & Property">
-    <option>Real Estate</option>
-    <option>Property Management</option>
-    <option>Contractor/Home Services</option>
-    <option>Plumbing</option>
-    <option>Electrician</option>
-    <option>HVAC</option>
-    <option>Landscaping</option>
-    <option>Cleaning Services</option>
-    <option>Pest Control</option>
-    <option>Moving Services</option>
-  </optgroup>
-  <optgroup label="Food & Hospitality">
-    <option>Restaurant</option>
-    <option>Cafe/Coffee Shop</option>
-    <option>Bar/Nightclub</option>
-    <option>Bakery</option>
-    <option>Catering</option>
-    <option>Food Truck</option>
-    <option>Hotel/Motel</option>
-    <option>Event Planning</option>
-  </optgroup>
-  <optgroup label="Retail & E-commerce">
-    <option>E-commerce</option>
-    <option>Clothing/Fashion</option>
-    <option>Jewelry</option>
-    <option>Electronics</option>
-    <option>Home Decor</option>
-    <option>Sporting Goods</option>
-    <option>Pet Supplies</option>
-    <option>Bookstore</option>
-  </optgroup>
-  <optgroup label="Automotive">
-    <option>Automotive</option>
-    <option>Car Dealership</option>
-    <option>Auto Repair</option>
-    <option>Car Wash/Detailing</option>
-    <option>Towing</option>
-  </optgroup>
-  <optgroup label="Education & Arts">
-    <option>Education/Tutoring</option>
-    <option>Music/Entertainment</option>
-    <option>Art Gallery</option>
-    <option>Dance Studio</option>
-    <option>Photography/Video</option>
-    <option>Language School</option>
-    <option>Driving School</option>
-  </optgroup>
-  <optgroup label="Other">
-    <option>Nonprofit/Charity</option>
-    <option>Religious Organization</option>
-    <option>Transportation/Logistics</option>
-    <option>Manufacturing</option>
-    <option>Agriculture/Farming</option>
-    <option>Other</option>
-  </optgroup>
+  <option>Real Estate</option>
+  <option>Salon/Spa</option>
+  <option>Legal</option>
+  <option>Medical/Dental</option>
+  <option>Restaurant</option>
+  <option>Contractor/Home Services</option>
+  <option>E-commerce</option>
+  <option>Coaching/Consulting</option>
+  <option>Fitness/Gym</option>
+  <option>Education/Tutoring</option>
+  <option>Music/Entertainment</option>
+  <option>Photography/Video</option>
+  <option>Automotive</option>
+  <option>Cleaning Services</option>
+  <option>Pet Services</option>
+  <option>Event Planning</option>
+  <option>Financial Services</option>
+  <option>Insurance</option>
+  <option>Marketing Agency</option>
+  <option>Other</option>
 </select>
 
 <button id="btn">Analyze</button>
@@ -260,8 +166,11 @@ const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('deploy') === 'true') {
   const pendingDeploy = sessionStorage.getItem('pendingDeploy');
   if (pendingDeploy) {
-    handleDeploy(JSON.parse(pendingDeploy));
-    sessionStorage.removeItem('pendingDeploy');
+    setTimeout(() => {
+      handleDeploy(JSON.parse(pendingDeploy));
+      sessionStorage.removeItem('pendingDeploy');
+      window.history.replaceState({}, document.title, '/');
+    }, 800);
   }
 }
 
@@ -299,35 +208,13 @@ btn.onclick = async () => {
 
 function normalize(data) {
   if (data.tier === "TIER_1") {
-    return {
-      type: "analysis",
-      title: "Free Scan",
-      summary: data.summary,
-      problems: data.problems || [],
-      revenueLeaks: data.revenueLeaks || [],
-      recommendations: data.recommendations || []
-    };
+    return { type: "analysis", title: "Free Scan", summary: data.summary, problems: data.problems || [], revenueLeaks: data.revenueLeaks || [], recommendations: data.recommendations || [] };
   }
   if (data.tier === "TIER_2") {
-    return {
-      type: "agent",
-      title: data.agent?.name || "Growth Agent",
-      role: data.agent?.role || "",
-      functions: data.agent?.functions || [],
-      impact: data.agent?.businessImpact || "",
-      interaction: data.agent?.interaction || "",
-      deployable: true
-    };
+    return { type: "agent", title: data.agent?.name || "Growth Agent", role: data.agent?.role || "", functions: data.agent?.functions || [], impact: data.agent?.businessImpact || "", interaction: data.agent?.interaction || "", deployable: true };
   }
   if (data.tier === "TIER_3") {
-    return {
-      type: "system",
-      title: data.system?.name || "Autonomous System",
-      agents: data.system?.agents || [],
-      capabilities: data.system?.capabilities || [],
-      impact: data.system?.businessImpact || "",
-      interaction: data.system?.interaction || ""
-    };
+    return { type: "system", title: data.system?.name || "Autonomous System", agents: data.system?.agents || [], capabilities: data.system?.capabilities || [], impact: data.system?.businessImpact || "", interaction: data.system?.interaction || "" };
   }
   return { type: "unknown", raw: data };
 }
@@ -338,46 +225,18 @@ function render(data, url, industry) {
   card.className = "card";
 
   if (data.type === "analysis") {
-    card.innerHTML = `
-      <div class="title">🔍 ${data.title}</div>
-      <p>${data.summary}</p>
-      <h4>Problems</h4>
-      <ul>${data.problems.map(x => `<li>${x}</li>`).join("")}</ul>
-      <h4>Revenue Leaks</h4>
-      <ul>${data.revenueLeaks.map(x => `<li>${x}</li>`).join("")}</ul>
-      <h4>Recommendations</h4>
-      <ul>${data.recommendations.map(x => `<li>${x}</li>`).join("")}</ul>
-    `;
+    card.innerHTML = `<div class="title">🔍 ${data.title}</div><p>${data.summary}</p><h4>Problems</h4><ul>${data.problems.map(x => `<li>${x}</li>`).join("")}</ul><h4>Revenue Leaks</h4><ul>${data.revenueLeaks.map(x => `<li>${x}</li>`).join("")}</ul><h4>Recommendations</h4><ul>${data.recommendations.map(x => `<li>${x}</li>`).join("")}</ul>`;
   }
 
   if (data.type === "agent") {
-    card.innerHTML = `
-      <div class="title">⚡ ${data.title}</div>
-      <p><b>Role:</b> ${data.role}</p>
-      <h4>Functions</h4>
-      <ul>${data.functions.map(x => `<li>${x}</li>`).join("")}</ul>
-      <p><b>Impact:</b> ${data.impact}</p>
-      <p><b>Use:</b> ${data.interaction}</p>
-      <button class="deploy-btn" id="deployBtn">⚡ Customize & Deploy</button>
-    `;
+    card.innerHTML = `<div class="title">⚡ ${data.title}</div><p><b>Role:</b> ${data.role}</p><h4>Functions</h4><ul>${data.functions.map(x => `<li>${x}</li>`).join("")}</ul><p><b>Impact:</b> ${data.impact}</p><p><b>Use:</b> ${data.interaction}</p><button class="deploy-btn" id="deployBtn">⚡ Customize & Deploy</button>`;
   }
 
   if (data.type === "system") {
-    card.innerHTML = `
-      <div class="title">🚀 ${data.title}</div>
-      <h4>Agents</h4>
-      <ul>${data.agents.map(x => `<li>${x}</li>`).join("")}</ul>
-      <h4>Capabilities</h4>
-      <ul>${data.capabilities.map(x => `<li>${x}</li>`).join("")}</ul>
-      <p><b>Impact:</b> ${data.impact}</p>
-      <p><b>Use:</b> ${data.interaction}</p>
-    `;
+    card.innerHTML = `<div class="title">🚀 ${data.title}</div><h4>Agents</h4><ul>${data.agents.map(x => `<li>${x}</li>`).join("")}</ul><h4>Capabilities</h4><ul>${data.capabilities.map(x => `<li>${x}</li>`).join("")}</ul><p><b>Impact:</b> ${data.impact}</p><p><b>Use:</b> ${data.interaction}</p>`;
     const ctaCard = document.createElement("div");
     ctaCard.className = "cta-card";
-    ctaCard.innerHTML = `
-      <p style="color: #fbbf24;">⭐ This business qualifies for our premium autonomous growth system.</p>
-      <a href="https://vladavetisian.github.io/Elite_Circle_Club/" target="_blank" rel="noopener">Get the Full System</a>
-    `;
+    ctaCard.innerHTML = `<p style="color: #fbbf24;">⭐ This business qualifies for our premium autonomous growth system.</p><a href="https://vladavetisian.github.io/Elite_Circle_Club/" target="_blank" rel="noopener">Get the Full System</a>`;
     output.appendChild(card);
     output.appendChild(ctaCard);
     return;
@@ -390,21 +249,14 @@ function render(data, url, industry) {
   output.appendChild(card);
 
   if (data.type === "agent") {
-    const deployBtn = document.getElementById("deployBtn");
-    if (deployBtn) {
-      deployBtn.onclick = () => {
-        const businessName = extractBusinessName(url);
-        openCustomizeModal(data.title, businessName, industry, url);
-      };
-    }
+    document.getElementById("deployBtn").onclick = () => {
+      openCustomizeModal(data.title, extractBusinessName(url), industry, url);
+    };
   }
 }
 
 function extractBusinessName(url) {
-  try {
-    const hostname = new URL(url).hostname;
-    return hostname.replace('www.', '').split('.')[0].replace(/-/g, ' ');
-  } catch { return 'Your Business'; }
+  try { return new URL(url).hostname.replace('www.', '').split('.')[0].replace(/-/g, ' '); } catch { return 'Your Business'; }
 }
 
 function openCustomizeModal(agentName, businessName, industry, url) {
@@ -418,59 +270,44 @@ function openCustomizeModal(agentName, businessName, industry, url) {
     <div class="modal-box">
       <h3>Customize Your <span style="color: #7C3AED;">${escapeHtml(agentName)}</span></h3>
       <p style="color: #aaa; font-size: 13px;">For: ${escapeHtml(businessName)}</p>
-
-      <label>🤖 Agent Header Text</label>
-      <input id="cfgHeader" value="${escapeHtml(agentName)}" placeholder="e.g. Music Lesson Bot"/>
-
-      <label>💬 Welcome Message</label>
-      <input id="cfgGreeting" value="Hi! How can I help you today?" placeholder="Greeting message"/>
-
-      <label>🎨 Agent Color</label>
+      <label>Agent Header</label>
+      <input id="cfgHeader" value="${escapeHtml(agentName)}"/>
+      <label>Welcome Message</label>
+      <input id="cfgGreeting" value="Hi! How can I help you today?"/>
+      <label>Agent Color</label>
       <div class="config-row">
         <input type="color" id="cfgColor" value="#7C3AED"/>
         <input type="text" id="cfgColorHex" value="#7C3AED" placeholder="#HEX" style="flex:2;"/>
       </div>
-
-      <label>📐 Widget Size</label>
+      <label>Widget Size</label>
       <select id="cfgSize">
         <option value="small">Small (320px)</option>
         <option value="medium" selected>Medium (400px)</option>
         <option value="large">Large (500px)</option>
       </select>
-
-      <label>📍 Widget Position</label>
+      <label>Widget Position</label>
       <select id="cfgPosition">
         <option value="bottom-right" selected>Bottom Right</option>
         <option value="bottom-left">Bottom Left</option>
       </select>
-
-      <label>💡 Suggested Questions (comma separated)</label>
-      <input id="cfgSuggestions" value="What services do you offer?,How do I book?,What are your prices?,Tell me more about the lessons" placeholder="Question 1, Question 2, Question 3"/>
-
-      <label>📝 Message Style</label>
+      <label>Suggested Questions (comma separated)</label>
+      <input id="cfgSuggestions" value="What services do you offer?,How do I book?,What are your prices?"/>
+      <label>Message Style</label>
       <select id="cfgStyle">
         <option value="rounded" selected>Rounded Bubbles</option>
         <option value="square">Square Bubbles</option>
         <option value="minimal">Minimal Lines</option>
       </select>
-
-      <p class="modal-warning">⚠️ One-time GitHub authorization required (free).</p>
+      <p class="modal-warning">One-time GitHub authorization required (free).</p>
       <div class="modal-buttons">
         <button class="btn-primary" id="confirmCustomize">Deploy Now</button>
         <button class="btn-secondary" id="cancelCustomize">Cancel</button>
       </div>
-    </div>
-  `;
+    </div>`;
   document.body.appendChild(modal);
 
-  document.getElementById("cfgColor").oninput = function() {
-    document.getElementById("cfgColorHex").value = this.value;
-  };
-  document.getElementById("cfgColorHex").oninput = function() {
-    if (this.value.match(/^#[0-9a-fA-F]{6}$/)) {
-      document.getElementById("cfgColor").value = this.value;
-    }
-  };
+  document.getElementById("cfgColor").oninput = function() { document.getElementById("cfgColorHex").value = this.value; };
+  document.getElementById("cfgColorHex").oninput = function() { if (this.value.match(/^#[0-9a-fA-F]{6}$/)) document.getElementById("cfgColor").value = this.value; };
 
   document.getElementById("confirmCustomize").onclick = () => {
     const config = {
@@ -485,7 +322,6 @@ function openCustomizeModal(agentName, businessName, industry, url) {
     modal.remove();
     handleDeploy({ agentType: agentName, businessName, industry, websiteUrl: url, config });
   };
-
   document.getElementById("cancelCustomize").onclick = () => modal.remove();
   modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 }
@@ -493,7 +329,7 @@ function openCustomizeModal(agentName, businessName, industry, url) {
 async function handleDeploy({ agentType, businessName, industry, websiteUrl, config }) {
   const statusCard = document.createElement("div");
   statusCard.className = "status-card";
-  statusCard.innerHTML = "🚀 Deploying to GitHub Pages...";
+  statusCard.innerHTML = "Deploying to GitHub Pages...";
   output.insertBefore(statusCard, output.firstChild);
   statusCard.scrollIntoView({ behavior: 'smooth' });
 
@@ -514,14 +350,9 @@ async function handleDeploy({ agentType, businessName, industry, websiteUrl, con
       throw new Error(data.error || "Deployment failed");
     }
 
-    statusCard.innerHTML = `
-      <div class="status-success">✅ Agent deployed!</div>
-      <p style="margin-top: 8px;"><b>Live URL:</b> <a href="${data.deployedUrl}" target="_blank" class="deploy-link">${data.deployedUrl}</a></p>
-      <p><b>Repo:</b> <a href="${data.repoUrl}" target="_blank" class="deploy-link">${data.repoUrl}</a></p>
-      <p style="color: #aaa; font-size: 12px; margin-top: 6px;">Takes 1-2 minutes to publish.</p>
-    `;
+    statusCard.innerHTML = `<div class="status-success">Agent deployed!</div><p style="margin-top:8px;"><b>Live URL:</b> <a href="${data.deployedUrl}" target="_blank" class="deploy-link">${data.deployedUrl}</a></p><p><b>Repo:</b> <a href="${data.repoUrl}" target="_blank" class="deploy-link">${data.repoUrl}</a></p><p style="color:#aaa;font-size:12px;margin-top:6px;">Takes 1-2 minutes to publish.</p>`;
   } catch (err) {
-    statusCard.innerHTML = `<div style="color: #ef4444;">❌ ${escapeHtml(err.message)}</div>`;
+    statusCard.innerHTML = `<div style="color:#ef4444;">${escapeHtml(err.message)}</div>`;
   }
 }
 
