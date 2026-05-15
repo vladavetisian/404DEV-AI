@@ -7,7 +7,7 @@ async function createRepo(token, repoName, description) {
       'Content-Type': 'application/json',
       'User-Agent': '404DEV-AI'
     },
-    body: JSON.stringify({ name: repoName, description: description, private: false, auto_init: true })
+    body: JSON.stringify({ name: repoName, description: description, private: false, auto_init: false })
   });
   if (!res.ok) {
     const err = await res.json();
