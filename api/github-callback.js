@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const { code, state } = req.query;
+  const { code, state, redirect } = req.query;
 
   if (!code) {
     return res.status(400).send('Missing authorization code.');
@@ -22,13 +22,15 @@ export default async function handler(req, res) {
     const tokenData = await tokenRes.json();
 
     if (tokenData.access_token) {
-      // Pass token back via hash fragment (survives redirects, never hits server)
-      let html = `<!DOCTYPE html><html><head><script>
-        var token = '${tokenData.access_token}';
-        var state = '${state || ''}';
-        window.location.href = '/?deploy=true&token=' + token + (state ? '&data=' + encodeURIComponent(state) : '');
-      </script></head></html>`;
-      return res.send(html);
+      // Dashboard login flow
+      if (redirect) {
+        return res.redirect(`${redirect}?token=${tokenData.access_token}`);
+      }
+
+      // Deploy flow
+      let redirectUrl = '/?deploy=true&token=' + tokenData.access_token;
+      if (state) redirectUrl += '&data=' + encodeURIComponent(state);
+      return res.redirect(redirectUrl);
     } else {
       return res.status(400).send('GitHub auth failed. Please try again.');
     }
