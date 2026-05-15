@@ -38,12 +38,16 @@ ul { margin-left: 18px; margin-top: 8px; }
 input[type="color"] { width: 60px; height: 40px; padding: 2px; cursor: pointer; }
 .config-row { display: flex; gap: 10px; align-items: center; }
 .config-row input, .config-row select { flex: 1; }
+.dashboard-link { text-align: right; margin-bottom: 10px; }
+.dashboard-link a { color: #7C3AED; text-decoration: none; font-size: 14px; }
+.dashboard-link a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
 <div class="container">
 <h1>404<span class="accent">DEV AI</span></h1>
 <p class="subtitle">Analyze your business and generate AI agents</p>
+<p class="dashboard-link"><a href="/dashboard">📊 My Dashboard</a></p>
 <input id="url" placeholder="https://yourwebsite.com"/>
 <select id="industry">
   <option value="">Select industry</option>
@@ -128,7 +132,6 @@ function openCustomizeModal(agentName, businessName, industry, url) {
   document.getElementById("confirmCustomize").onclick = () => {
     const config = { header: document.getElementById("cfgHeader").value, greeting: document.getElementById("cfgGreeting").value, color: document.getElementById("cfgColor").value, size: document.getElementById("cfgSize").value, position: document.getElementById("cfgPosition").value, suggestions: document.getElementById("cfgSuggestions").value, style: document.getElementById("cfgStyle").value };
     modal.remove();
-    // Redirect to GitHub OAuth with deploy data as state
     const deployData = encodeURIComponent(JSON.stringify({ agentType: agentName, businessName, industry, websiteUrl: url, config }));
     window.location.href = '/api/github-oauth?data=' + deployData;
   };
