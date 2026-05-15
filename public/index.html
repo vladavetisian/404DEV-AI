@@ -4,81 +4,23 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>404DEV AI</title>
-
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  background: #0a0a0a;
-  color: white;
-  font-family: system-ui, sans-serif;
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 40px 20px;
-}
-
+body { background: #0a0a0a; color: white; font-family: system-ui, sans-serif; display: flex; justify-content: center; min-height: 100vh; padding: 40px 20px; }
 .container { width: 100%; max-width: 700px; }
-
 h1 { font-size: 32px; margin-bottom: 10px; }
 .accent { color: #7C3AED; }
 .subtitle { color: #aaa; margin-bottom: 30px; }
-
-input, select {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  background: #111;
-  border: 1px solid #333;
-  color: white;
-  border-radius: 8px;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  background: #7C3AED;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
+input, select { width: 100%; padding: 12px; margin-bottom: 12px; background: #111; border: 1px solid #333; color: white; border-radius: 8px; }
+button { width: 100%; padding: 12px; background: #7C3AED; color: white; border: none; border-radius: 8px; cursor: pointer; }
 button:disabled { opacity: 0.5; }
-
-.card {
-  margin-top: 20px;
-  padding: 16px;
-  background: #111;
-  border: 1px solid #333;
-  border-radius: 10px;
-}
-
+.card { margin-top: 20px; padding: 16px; background: #111; border: 1px solid #333; border-radius: 10px; }
 .title { color: #7C3AED; margin-bottom: 10px; }
 ul { margin-left: 18px; margin-top: 8px; }
-
-.deploy-btn {
-  margin-top: 16px;
-  background: #7C3AED;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 14px;
-}
+.deploy-btn { margin-top: 16px; background: #7C3AED; color: white; border: none; border-radius: 8px; padding: 10px 20px; cursor: pointer; font-size: 14px; }
 .deploy-btn:hover { background: #6d28d9; }
-
-.modal-overlay {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1000;
-}
-.modal-overlay.hidden { display: none; }
-.modal-box {
-  background: #18181b; border: 1px solid #333; border-radius: 16px;
-  padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;
-}
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-box { background: #18181b; border: 1px solid #333; border-radius: 16px; padding: 24px; max-width: 500px; width: 90%; max-height: 85vh; overflow-y: auto; }
 .modal-box h3 { font-size: 1.2rem; margin-bottom: 8px; }
 .modal-box p { color: #aaa; margin-bottom: 16px; font-size: 14px; }
 .modal-box label { display: block; color: #d4d4d8; font-size: 13px; margin-bottom: 4px; margin-top: 10px; }
@@ -88,285 +30,112 @@ ul { margin-left: 18px; margin-top: 8px; }
 .modal-buttons button { flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 14px; }
 .btn-primary { background: #7C3AED; color: white; border: none; }
 .btn-secondary { background: #27272a; color: #aaa; border: none; }
-
-.status-card {
-  margin-top: 16px; padding: 14px;
-  background: #111; border: 1px solid #333; border-radius: 10px;
-}
+.status-card { margin-top: 16px; padding: 14px; background: #111; border: 1px solid #333; border-radius: 10px; }
 .status-success { color: #4ade80; }
 .deploy-link { color: #7C3AED; word-break: break-all; }
-
-.cta-card {
-  margin-top: 20px; padding: 16px;
-  background: #111; border: 1px solid #fbbf24;
-  border-radius: 10px; text-align: center;
-}
-.cta-card a {
-  display: inline-block; margin-top: 10px;
-  background: #7C3AED; color: white;
-  padding: 10px 24px; border-radius: 8px; text-decoration: none;
-}
-
-input[type="color"] {
-  width: 60px; height: 40px; padding: 2px;
-  cursor: pointer;
-}
-
-.config-row {
-  display: flex; gap: 10px; align-items: center;
-}
+.cta-card { margin-top: 20px; padding: 16px; background: #111; border: 1px solid #fbbf24; border-radius: 10px; text-align: center; }
+.cta-card a { display: inline-block; margin-top: 10px; background: #7C3AED; color: white; padding: 10px 24px; border-radius: 8px; text-decoration: none; }
+input[type="color"] { width: 60px; height: 40px; padding: 2px; cursor: pointer; }
+.config-row { display: flex; gap: 10px; align-items: center; }
 .config-row input, .config-row select { flex: 1; }
+.token-hint { color: #a78bfa; font-size: 12px; margin-top: -4px; margin-bottom: 8px; }
+.token-hint a { color: #7C3AED; }
 </style>
-
 </head>
-
 <body>
-
 <div class="container">
-
 <h1>404<span class="accent">DEV AI</span></h1>
 <p class="subtitle">Analyze your business and generate AI agents</p>
-
 <input id="url" placeholder="https://yourwebsite.com"/>
 <select id="industry">
   <option value="">Select industry</option>
-  <option>Real Estate</option>
-  <option>Salon/Spa</option>
-  <option>Legal</option>
-  <option>Medical/Dental</option>
-  <option>Restaurant</option>
-  <option>Contractor/Home Services</option>
-  <option>E-commerce</option>
-  <option>Coaching/Consulting</option>
-  <option>Fitness/Gym</option>
-  <option>Education/Tutoring</option>
-  <option>Music/Entertainment</option>
-  <option>Photography/Video</option>
-  <option>Automotive</option>
-  <option>Cleaning Services</option>
-  <option>Pet Services</option>
-  <option>Event Planning</option>
-  <option>Financial Services</option>
-  <option>Insurance</option>
-  <option>Marketing Agency</option>
-  <option>Other</option>
+  <option>Real Estate</option><option>Salon/Spa</option><option>Legal</option><option>Medical/Dental</option><option>Restaurant</option><option>Contractor/Home Services</option><option>E-commerce</option><option>Coaching/Consulting</option><option>Fitness/Gym</option><option>Education/Tutoring</option><option>Music/Entertainment</option><option>Photography/Video</option><option>Automotive</option><option>Cleaning Services</option><option>Pet Services</option><option>Event Planning</option><option>Financial Services</option><option>Insurance</option><option>Marketing Agency</option><option>Other</option>
 </select>
-
 <button id="btn">Analyze</button>
-
 <div id="output"></div>
-
 </div>
 
 <script>
 const btn = document.getElementById("btn");
 const output = document.getElementById("output");
 
-// Resume deploy from URL (token + data)
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('deploy') === 'true') {
-  const token = urlParams.get('token');
-  const dataParam = urlParams.get('data');
-  if (token && dataParam) {
-    setTimeout(() => {
-      var deployInfo = JSON.parse(decodeURIComponent(dataParam));
-      deployInfo.token = token;
-      handleDeploy(deployInfo);
-      window.history.replaceState({}, document.title, '/');
-    }, 500);
-  }
-}
-
 btn.onclick = async () => {
   const url = document.getElementById("url").value;
   const industry = document.getElementById("industry").value;
-
-  if (!url || !industry) {
-    alert("Fill all fields");
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerText = "Analyzing...";
-  output.innerHTML = "";
-
+  if (!url || !industry) { alert("Fill all fields"); return; }
+  btn.disabled = true; btn.innerText = "Analyzing..."; output.innerHTML = "";
   try {
-    const res = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url, industry })
-    });
-
+    const res = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url, industry }) });
     const data = await res.json();
     const normalized = normalize(data);
     render(normalized, url, industry);
-
-  } catch (e) {
-    output.innerHTML = `<div class="card">Error: ${e.message}</div>`;
-  }
-
-  btn.disabled = false;
-  btn.innerText = "Analyze";
+  } catch (e) { output.innerHTML = `<div class="card">Error: ${e.message}</div>`; }
+  btn.disabled = false; btn.innerText = "Analyze";
 };
 
 function normalize(data) {
-  if (data.tier === "TIER_1") {
-    return { type: "analysis", title: "Free Scan", summary: data.summary, problems: data.problems || [], revenueLeaks: data.revenueLeaks || [], recommendations: data.recommendations || [] };
-  }
-  if (data.tier === "TIER_2") {
-    return { type: "agent", title: data.agent?.name || "Growth Agent", role: data.agent?.role || "", functions: data.agent?.functions || [], impact: data.agent?.businessImpact || "", interaction: data.agent?.interaction || "", deployable: true };
-  }
-  if (data.tier === "TIER_3") {
-    return { type: "system", title: data.system?.name || "Autonomous System", agents: data.system?.agents || [], capabilities: data.system?.capabilities || [], impact: data.system?.businessImpact || "", interaction: data.system?.interaction || "" };
-  }
+  if (data.tier === "TIER_1") return { type: "analysis", title: "Free Scan", summary: data.summary, problems: data.problems || [], revenueLeaks: data.revenueLeaks || [], recommendations: data.recommendations || [] };
+  if (data.tier === "TIER_2") return { type: "agent", title: data.agent?.name || "Growth Agent", role: data.agent?.role || "", functions: data.agent?.functions || [], impact: data.agent?.businessImpact || "", interaction: data.agent?.interaction || "", deployable: true };
+  if (data.tier === "TIER_3") return { type: "system", title: data.system?.name || "Autonomous System", agents: data.system?.agents || [], capabilities: data.system?.capabilities || [], impact: data.system?.businessImpact || "", interaction: data.system?.interaction || "" };
   return { type: "unknown", raw: data };
 }
 
 function render(data, url, industry) {
   output.innerHTML = "";
-  const card = document.createElement("div");
-  card.className = "card";
-
-  if (data.type === "analysis") {
-    card.innerHTML = `<div class="title">🔍 ${data.title}</div><p>${data.summary}</p><h4>Problems</h4><ul>${data.problems.map(x => `<li>${x}</li>`).join("")}</ul><h4>Revenue Leaks</h4><ul>${data.revenueLeaks.map(x => `<li>${x}</li>`).join("")}</ul><h4>Recommendations</h4><ul>${data.recommendations.map(x => `<li>${x}</li>`).join("")}</ul>`;
-  }
-
-  if (data.type === "agent") {
-    card.innerHTML = `<div class="title">⚡ ${data.title}</div><p><b>Role:</b> ${data.role}</p><h4>Functions</h4><ul>${data.functions.map(x => `<li>${x}</li>`).join("")}</ul><p><b>Impact:</b> ${data.impact}</p><p><b>Use:</b> ${data.interaction}</p><button class="deploy-btn" id="deployBtn">⚡ Customize & Deploy</button>`;
-  }
-
-  if (data.type === "system") {
-    card.innerHTML = `<div class="title">🚀 ${data.title}</div><h4>Agents</h4><ul>${data.agents.map(x => `<li>${x}</li>`).join("")}</ul><h4>Capabilities</h4><ul>${data.capabilities.map(x => `<li>${x}</li>`).join("")}</ul><p><b>Impact:</b> ${data.impact}</p><p><b>Use:</b> ${data.interaction}</p>`;
-    const ctaCard = document.createElement("div");
-    ctaCard.className = "cta-card";
-    ctaCard.innerHTML = `<p style="color: #fbbf24;">⭐ This business qualifies for our premium autonomous growth system.</p><a href="https://vladavetisian.github.io/Elite_Circle_Club/" target="_blank" rel="noopener">Get the Full System</a>`;
-    output.appendChild(card);
-    output.appendChild(ctaCard);
-    return;
-  }
-
-  if (data.type === "unknown") {
-    card.innerHTML = `<pre>${JSON.stringify(data.raw, null, 2)}</pre>`;
-  }
-
+  const card = document.createElement("div"); card.className = "card";
+  if (data.type === "analysis") card.innerHTML = `<div class="title">🔍 ${data.title}</div><p>${data.summary}</p><h4>Problems</h4><ul>${data.problems.map(x => `<li>${x}</li>`).join("")}</ul><h4>Revenue Leaks</h4><ul>${data.revenueLeaks.map(x => `<li>${x}</li>`).join("")}</ul><h4>Recommendations</h4><ul>${data.recommendations.map(x => `<li>${x}</li>`).join("")}</ul>`;
+  if (data.type === "agent") card.innerHTML = `<div class="title">⚡ ${data.title}</div><p><b>Role:</b> ${data.role}</p><h4>Functions</h4><ul>${data.functions.map(x => `<li>${x}</li>`).join("")}</ul><p><b>Impact:</b> ${data.impact}</p><p><b>Use:</b> ${data.interaction}</p><button class="deploy-btn" id="deployBtn">⚡ Customize & Deploy</button>`;
+  if (data.type === "system") { card.innerHTML = `<div class="title">🚀 ${data.title}</div><h4>Agents</h4><ul>${data.agents.map(x => `<li>${x}</li>`).join("")}</ul><h4>Capabilities</h4><ul>${data.capabilities.map(x => `<li>${x}</li>`).join("")}</ul><p><b>Impact:</b> ${data.impact}</p><p><b>Use:</b> ${data.interaction}</p>`; const cta = document.createElement("div"); cta.className = "cta-card"; cta.innerHTML = `<p style="color:#fbbf24;">⭐ Premium autonomous growth system available.</p><a href="https://vladavetisian.github.io/Elite_Circle_Club/" target="_blank">Get the Full System</a>`; output.appendChild(card); output.appendChild(cta); return; }
+  if (data.type === "unknown") card.innerHTML = `<pre>${JSON.stringify(data.raw, null, 2)}</pre>`;
   output.appendChild(card);
-
-  if (data.type === "agent") {
-    document.getElementById("deployBtn").onclick = () => {
-      openCustomizeModal(data.title, extractBusinessName(url), industry, url);
-    };
-  }
+  if (data.type === "agent") document.getElementById("deployBtn").onclick = () => openCustomizeModal(data.title, extractBusinessName(url), industry, url);
 }
 
-function extractBusinessName(url) {
-  try { return new URL(url).hostname.replace('www.', '').split('.')[0].replace(/-/g, ' '); } catch { return 'Your Business'; }
-}
+function extractBusinessName(url) { try { return new URL(url).hostname.replace('www.', '').split('.')[0].replace(/-/g, ' '); } catch { return 'Your Business'; } }
 
 function openCustomizeModal(agentName, businessName, industry, url) {
-  const existing = document.getElementById('customizeModal');
-  if (existing) existing.remove();
-
-  const modal = document.createElement("div");
-  modal.className = "modal-overlay";
-  modal.id = "customizeModal";
-  modal.innerHTML = `
-    <div class="modal-box">
-      <h3>Customize Your <span style="color: #7C3AED;">${escapeHtml(agentName)}</span></h3>
-      <p style="color: #aaa; font-size: 13px;">For: ${escapeHtml(businessName)}</p>
-      <label>Agent Header</label>
-      <input id="cfgHeader" value="${escapeHtml(agentName)}"/>
-      <label>Welcome Message</label>
-      <input id="cfgGreeting" value="Hi! How can I help you today?"/>
-      <label>Agent Color</label>
-      <div class="config-row">
-        <input type="color" id="cfgColor" value="#7C3AED"/>
-        <input type="text" id="cfgColorHex" value="#7C3AED" placeholder="#HEX" style="flex:2;"/>
-      </div>
-      <label>Widget Size</label>
-      <select id="cfgSize">
-        <option value="small">Small (320px)</option>
-        <option value="medium" selected>Medium (400px)</option>
-        <option value="large">Large (500px)</option>
-      </select>
-      <label>Widget Position</label>
-      <select id="cfgPosition">
-        <option value="bottom-right" selected>Bottom Right</option>
-        <option value="bottom-left">Bottom Left</option>
-      </select>
-      <label>Suggested Questions (comma separated)</label>
-      <input id="cfgSuggestions" value="What services do you offer?,How do I book?,What are your prices?"/>
-      <label>Message Style</label>
-      <select id="cfgStyle">
-        <option value="rounded" selected>Rounded Bubbles</option>
-        <option value="square">Square Bubbles</option>
-        <option value="minimal">Minimal Lines</option>
-      </select>
-      <p class="modal-warning">One-time GitHub authorization required (free).</p>
-      <div class="modal-buttons">
-        <button class="btn-primary" id="confirmCustomize">Deploy Now</button>
-        <button class="btn-secondary" id="cancelCustomize">Cancel</button>
-      </div>
-    </div>`;
+  const existing = document.getElementById('customizeModal'); if (existing) existing.remove();
+  const modal = document.createElement("div"); modal.className = "modal-overlay"; modal.id = "customizeModal";
+  modal.innerHTML = `<div class="modal-box">
+    <h3>Customize & Deploy <span style="color:#7C3AED;">${escapeHtml(agentName)}</span></h3>
+    <p style="color:#aaa;font-size:13px;">For: ${escapeHtml(businessName)}</p>
+    <label>🤖 Agent Header</label><input id="cfgHeader" value="${escapeHtml(agentName)}"/>
+    <label>💬 Welcome Message</label><input id="cfgGreeting" value="Hi! How can I help you today?"/>
+    <label>🎨 Agent Color</label><div class="config-row"><input type="color" id="cfgColor" value="#7C3AED"/><input type="text" id="cfgColorHex" value="#7C3AED" placeholder="#HEX" style="flex:2;"/></div>
+    <label>📐 Widget Size</label><select id="cfgSize"><option value="small">Small (320px)</option><option value="medium" selected>Medium (400px)</option><option value="large">Large (500px)</option></select>
+    <label>📍 Widget Position</label><select id="cfgPosition"><option value="bottom-right" selected>Bottom Right</option><option value="bottom-left">Bottom Left</option></select>
+    <label>💡 Suggested Questions (comma separated)</label><input id="cfgSuggestions" value="What services do you offer?,How do I book?,What are your prices?"/>
+    <label>📝 Message Style</label><select id="cfgStyle"><option value="rounded" selected>Rounded Bubbles</option><option value="square">Square Bubbles</option><option value="minimal">Minimal Lines</option></select>
+    <label>🔑 GitHub Token</label><input id="cfgToken" placeholder="ghp_..." type="password"/>
+    <p class="token-hint"><a href="https://github.com/settings/tokens/new?scopes=repo&description=404DEV+AI" target="_blank">Click here to create a token</a> (check "repo" scope, copy it, paste above)</p>
+    <div class="modal-buttons"><button class="btn-primary" id="confirmCustomize">🚀 Deploy Now</button><button class="btn-secondary" id="cancelCustomize">Cancel</button></div>
+  </div>`;
   document.body.appendChild(modal);
-
   document.getElementById("cfgColor").oninput = function() { document.getElementById("cfgColorHex").value = this.value; };
   document.getElementById("cfgColorHex").oninput = function() { if (this.value.match(/^#[0-9a-fA-F]{6}$/)) document.getElementById("cfgColor").value = this.value; };
-
   document.getElementById("confirmCustomize").onclick = () => {
-    const config = {
-      header: document.getElementById("cfgHeader").value,
-      greeting: document.getElementById("cfgGreeting").value,
-      color: document.getElementById("cfgColor").value,
-      size: document.getElementById("cfgSize").value,
-      position: document.getElementById("cfgPosition").value,
-      suggestions: document.getElementById("cfgSuggestions").value,
-      style: document.getElementById("cfgStyle").value
-    };
+    const token = document.getElementById("cfgToken").value.trim();
+    if (!token) { alert("GitHub token is required!"); return; }
+    const config = { header: document.getElementById("cfgHeader").value, greeting: document.getElementById("cfgGreeting").value, color: document.getElementById("cfgColor").value, size: document.getElementById("cfgSize").value, position: document.getElementById("cfgPosition").value, suggestions: document.getElementById("cfgSuggestions").value, style: document.getElementById("cfgStyle").value };
     modal.remove();
-    handleDeploy({ agentType: agentName, businessName, industry, websiteUrl: url, config });
+    handleDeploy({ token, agentType: agentName, businessName, industry, websiteUrl: url, config });
   };
   document.getElementById("cancelCustomize").onclick = () => modal.remove();
   modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 }
 
-async function handleDeploy(info) {
-  const { agentType, businessName, industry, websiteUrl, config, token } = info;
-  const statusCard = document.createElement("div");
-  statusCard.className = "status-card";
-  statusCard.innerHTML = "Deploying to GitHub Pages...";
-  output.insertBefore(statusCard, output.firstChild);
-  statusCard.scrollIntoView({ behavior: 'smooth' });
-
+async function handleDeploy({ token, agentType, businessName, industry, websiteUrl, config }) {
+  const statusCard = document.createElement("div"); statusCard.className = "status-card"; statusCard.innerHTML = "🚀 Deploying to GitHub Pages...";
+  output.insertBefore(statusCard, output.firstChild); statusCard.scrollIntoView({ behavior: 'smooth' });
   try {
-    const res = await fetch("/api/deploy-bot", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: token || '', agentType, businessName, industry, websiteUrl, config })
-    });
+    const res = await fetch("/api/deploy-bot", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token, agentType, businessName, industry, websiteUrl, config }) });
     const data = await res.json();
-
-    if (!res.ok) {
-      if (res.status === 401 && data.authUrl) {
-        const deployData = encodeURIComponent(JSON.stringify({ agentType, businessName, industry, websiteUrl, config }));
-        window.location.href = data.authUrl + '?data=' + deployData;
-        return;
-      }
-      throw new Error(data.error || "Deployment failed");
-    }
-
-    statusCard.innerHTML = `<div class="status-success">Agent deployed!</div><p style="margin-top:8px;"><b>Live URL:</b> <a href="${data.deployedUrl}" target="_blank" class="deploy-link">${data.deployedUrl}</a></p><p><b>Repo:</b> <a href="${data.repoUrl}" target="_blank" class="deploy-link">${data.repoUrl}</a></p><p style="color:#aaa;font-size:12px;margin-top:6px;">Takes 1-2 minutes to publish.</p>`;
-  } catch (err) {
-    statusCard.innerHTML = `<div style="color:#ef4444;">${escapeHtml(err.message)}</div>`;
-  }
+    if (!res.ok) throw new Error(data.error || "Deployment failed");
+    statusCard.innerHTML = `<div class="status-success">✅ Agent deployed!</div><p style="margin-top:8px;"><b>Live URL:</b> <a href="${data.deployedUrl}" target="_blank" class="deploy-link">${data.deployedUrl}</a></p><p><b>Repo:</b> <a href="${data.repoUrl}" target="_blank" class="deploy-link">${data.repoUrl}</a></p><p style="color:#aaa;font-size:12px;">Takes 1-2 minutes to publish.</p>`;
+  } catch (err) { statusCard.innerHTML = `<div style="color:#ef4444;">❌ ${escapeHtml(err.message)}</div>`; }
 }
 
-function escapeHtml(text) {
-  if (!text) return '';
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
-}
+function escapeHtml(text) { if (!text) return ''; const div = document.createElement("div"); div.textContent = text; return div.innerHTML; }
 </script>
-
 </body>
 </html>
