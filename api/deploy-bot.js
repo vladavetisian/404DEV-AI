@@ -9,7 +9,11 @@ async function createRepo(token, repoName, description) {
     },
     body: JSON.stringify({ name: repoName, description: description, private: false, auto_init: true })
   });
-  if (!res.ok) { const err = await res.json(); throw new Error(err.message || 'Failed to create repo'); }
+  if (!res.ok) {
+    const err = await res.json();
+    const msg = err.errors?.[0]?.message || err.message || 'Failed to create repo';
+    throw new Error(msg);
+  }
   return res.json();
 }
 
@@ -25,7 +29,10 @@ async function createFile(token, owner, repo, path, content, message) {
     },
     body: JSON.stringify({ message: message, content: base64Content, branch: 'main' })
   });
-  if (!res.ok) { const err = await res.json(); throw new Error(err.message || 'Failed to create file'); }
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || 'Failed to create file');
+  }
 }
 
 async function enablePages(token, owner, repo) {
@@ -39,7 +46,10 @@ async function enablePages(token, owner, repo) {
     },
     body: JSON.stringify({ source: { branch: 'main', path: '/' } })
   });
-  if (!res.ok) { const err = await res.json(); throw new Error(err.message || 'Failed to enable Pages'); }
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || 'Failed to enable Pages');
+  }
 }
 
 function generateBotHTML(agentName, businessName, industry, config) {
@@ -134,11 +144,11 @@ export default async function handler(req, res) {
 
     const userData = await userRes.json();
     const username = userData.login;
-    const safeName = businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 25);
-    const repoName = safeName + '-ai-agent';
+    const safeName = businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 20);
+    const repoName = safeName + '-ai-agent-' + Date.now().toString(36);
 
     await createRepo(token, repoName, 'AI Chat Agent for ' + businessName);
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 2500));
 
     const botHTML = generateBotHTML(agentType, businessName, industry, config);
     await createFile(token, username, repoName, 'index.html', botHTML, 'Add AI chat widget');
