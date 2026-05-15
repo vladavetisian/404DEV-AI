@@ -38,8 +38,6 @@ ul { margin-left: 18px; margin-top: 8px; }
 input[type="color"] { width: 60px; height: 40px; padding: 2px; cursor: pointer; }
 .config-row { display: flex; gap: 10px; align-items: center; }
 .config-row input, .config-row select { flex: 1; }
-.token-hint { color: #a78bfa; font-size: 12px; margin-top: -4px; margin-bottom: 8px; }
-.token-hint a { color: #7C3AED; }
 </style>
 </head>
 <body>
@@ -58,6 +56,21 @@ input[type="color"] { width: 60px; height: 40px; padding: 2px; cursor: pointer; 
 <script>
 const btn = document.getElementById("btn");
 const output = document.getElementById("output");
+
+// Resume deploy after OAuth redirect
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('deploy') === 'true') {
+  const token = urlParams.get('token');
+  const dataParam = urlParams.get('data');
+  if (token && dataParam) {
+    setTimeout(() => {
+      var deployInfo = JSON.parse(decodeURIComponent(dataParam));
+      deployInfo.token = token;
+      handleDeploy(deployInfo);
+      window.history.replaceState({}, document.title, '/');
+    }, 500);
+  }
+}
 
 btn.onclick = async () => {
   const url = document.getElementById("url").value;
@@ -106,25 +119,25 @@ function openCustomizeModal(agentName, businessName, industry, url) {
     <label>📍 Widget Position</label><select id="cfgPosition"><option value="bottom-right" selected>Bottom Right</option><option value="bottom-left">Bottom Left</option></select>
     <label>💡 Suggested Questions (comma separated)</label><input id="cfgSuggestions" value="What services do you offer?,How do I book?,What are your prices?"/>
     <label>📝 Message Style</label><select id="cfgStyle"><option value="rounded" selected>Rounded Bubbles</option><option value="square">Square Bubbles</option><option value="minimal">Minimal Lines</option></select>
-    <label>🔑 GitHub Token</label><input id="cfgToken" placeholder="ghp_..." type="password"/>
-    <p class="token-hint"><a href="https://github.com/settings/tokens/new?scopes=repo&description=404DEV+AI" target="_blank">Click here to create a token</a> (check "repo" scope, copy it, paste above)</p>
-    <div class="modal-buttons"><button class="btn-primary" id="confirmCustomize">🚀 Deploy Now</button><button class="btn-secondary" id="cancelCustomize">Cancel</button></div>
+    <p class="modal-warning">You'll authorize with GitHub on the next step.</p>
+    <div class="modal-buttons"><button class="btn-primary" id="confirmCustomize">🚀 Continue with GitHub</button><button class="btn-secondary" id="cancelCustomize">Cancel</button></div>
   </div>`;
   document.body.appendChild(modal);
   document.getElementById("cfgColor").oninput = function() { document.getElementById("cfgColorHex").value = this.value; };
   document.getElementById("cfgColorHex").oninput = function() { if (this.value.match(/^#[0-9a-fA-F]{6}$/)) document.getElementById("cfgColor").value = this.value; };
   document.getElementById("confirmCustomize").onclick = () => {
-    const token = document.getElementById("cfgToken").value.trim();
-    if (!token) { alert("GitHub token is required!"); return; }
     const config = { header: document.getElementById("cfgHeader").value, greeting: document.getElementById("cfgGreeting").value, color: document.getElementById("cfgColor").value, size: document.getElementById("cfgSize").value, position: document.getElementById("cfgPosition").value, suggestions: document.getElementById("cfgSuggestions").value, style: document.getElementById("cfgStyle").value };
     modal.remove();
-    handleDeploy({ token, agentType: agentName, businessName, industry, websiteUrl: url, config });
+    // Redirect to GitHub OAuth with deploy data as state
+    const deployData = encodeURIComponent(JSON.stringify({ agentType: agentName, businessName, industry, websiteUrl: url, config }));
+    window.location.href = '/api/github-oauth?data=' + deployData;
   };
   document.getElementById("cancelCustomize").onclick = () => modal.remove();
   modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
 }
 
-async function handleDeploy({ token, agentType, businessName, industry, websiteUrl, config }) {
+async function handleDeploy(info) {
+  const { token, agentType, businessName, industry, websiteUrl, config } = info;
   const statusCard = document.createElement("div"); statusCard.className = "status-card"; statusCard.innerHTML = "🚀 Deploying to GitHub Pages...";
   output.insertBefore(statusCard, output.firstChild); statusCard.scrollIntoView({ behavior: 'smooth' });
   try {
