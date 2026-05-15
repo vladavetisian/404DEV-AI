@@ -124,25 +124,16 @@ export default async function handler(req, res) {
   try {
     const { token, agentType, businessName, industry, websiteUrl, config } = req.body;
 
-    if (!token) {
-      return res.status(400).json({ error: 'GitHub token is required. Paste it in the field below.' });
-    }
-
-    if (!agentType || !businessName) {
-      return res.status(400).json({ error: 'Agent type and business name required.' });
-    }
+    if (!token) return res.status(400).json({ error: 'GitHub token required.' });
+    if (!agentType || !businessName) return res.status(400).json({ error: 'Missing required fields.' });
 
     const userRes = await fetch('https://api.github.com/user', {
       headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json', 'User-Agent': '404DEV-AI' }
     });
-
-    if (!userRes.ok) {
-      return res.status(400).json({ error: 'Invalid GitHub token. Get one at github.com/settings/tokens (check "repo" scope).' });
-    }
+    if (!userRes.ok) return res.status(401).json({ error: 'Invalid token.', authUrl: 'https://' + req.headers.host + '/api/github-oauth' });
 
     const userData = await userRes.json();
     const username = userData.login;
-
     const safeName = businessName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 25);
     const repoName = safeName + '-ai-agent';
 
@@ -160,7 +151,6 @@ export default async function handler(req, res) {
       deployedUrl: 'https://' + username + '.github.io/' + repoName,
       message: 'Agent deployed! Takes 1-2 minutes to publish.'
     });
-
   } catch (err) {
     return res.status(500).json({ error: 'Deploy failed: ' + err.message });
   }
