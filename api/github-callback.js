@@ -22,13 +22,15 @@ export default async function handler(req, res) {
     const tokenData = await tokenRes.json();
 
     if (tokenData.access_token) {
-      var redirectTo = '/?deploy=true&token=' + tokenData.access_token;
-      if (state && state.length > 0) {
-        redirectTo += '&data=' + encodeURIComponent(state);
-      }
-      return res.redirect(redirectTo);
+      // Pass token back via hash fragment (survives redirects, never hits server)
+      let html = `<!DOCTYPE html><html><head><script>
+        var token = '${tokenData.access_token}';
+        var state = '${state || ''}';
+        window.location.href = '/?deploy=true&token=' + token + (state ? '&data=' + encodeURIComponent(state) : '');
+      </script></head></html>`;
+      return res.send(html);
     } else {
-      return res.status(400).send('GitHub auth failed.');
+      return res.status(400).send('GitHub auth failed. Please try again.');
     }
   } catch (err) {
     return res.status(500).send('Auth server error.');
