@@ -1,3 +1,5 @@
+import { kv } from '@vercel/kv';
+
 async function createRepo(token, repoName, description) {
   const res = await fetch('https://api.github.com/user/repos', {
     method: 'POST',
@@ -52,7 +54,7 @@ async function enablePages(token, owner, repo) {
   }
 }
 
-function generateBotHTML(agentName, businessName, industry, config) {
+function generateBotHTML(agentName, businessName, industry, config, username, repoName) {
   config = config || {};
   const color = config.color || '#7C3AED';
   const header = config.header || agentName;
@@ -115,8 +117,19 @@ body{background:transparent;font-family:system-ui,sans-serif;overflow:hidden}
 <script>
 var msgs=document.getElementById("msgs"),inp=document.getElementById("inp"),sug=document.getElementById("sug");
 var r={hello:"Hi there!",hi:"Hello!",help:"I'm here to help!",price:"We'd love to discuss pricing! Leave your contact.",contact:"Reach us here or leave your email.",book:"I can help you schedule! What service?",default:"Thanks! Our team will follow up."};
+function logMessage(msg, sender) {
+  try {
+    fetch('https://404devai.vercel.app/api/log-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ owner: '${username}', repo: '${repoName}', message: msg, sender: sender })
+    }).catch(function(){});
+  } catch(e) {}
+}
+// Log initial greeting
+logMessage('${greeting.replace(/'/g, "\\'")}', 'bot');
 function sendSug(t){inp.value=t;send()}
-function send(){var t=inp.value.trim();if(!t)return;msgs.innerHTML+='<div class="message user-message"><div>'+t+'</div></div>';sug.style.display="none";setTimeout(function(){var l=t.toLowerCase(),re=r.default;for(var k in r){if(l.indexOf(k)>=0){re=r[k];break}}msgs.innerHTML+='<div class="message"><div class="bot-message">'+re+'</div></div>';msgs.scrollTop=msgs.scrollHeight},600);inp.value="";msgs.scrollTop=msgs.scrollHeight}
+function send(){var t=inp.value.trim();if(!t)return;msgs.innerHTML+='<div class="message user-message"><div>'+t+'</div></div>';sug.style.display="none";logMessage(t,'user');setTimeout(function(){var l=t.toLowerCase(),re=r.default;for(var k in r){if(l.indexOf(k)>=0){re=r[k];break}}msgs.innerHTML+='<div class="message"><div class="bot-message">'+re+'</div></div>';logMessage(re,'bot');msgs.scrollTop=msgs.scrollHeight},600);inp.value="";msgs.scrollTop=msgs.scrollHeight}
 inp.addEventListener("keypress",function(e){if(e.key==="Enter")send()});
 </script>
 </body>
@@ -150,10 +163,27 @@ export default async function handler(req, res) {
     await createRepo(token, repoName, 'AI Chat Agent for ' + businessName);
     await new Promise(r => setTimeout(r, 2500));
 
-    const botHTML = generateBotHTML(agentType, businessName, industry, config);
+    // Pass username and repoName so widget can log messages
+    const botHTML = generateBotHTML(agentType, businessName, industry, config, username, repoName);
     await createFile(token, username, repoName, 'index.html', botHTML, 'Add AI chat widget');
     await createFile(token, username, repoName, 'README.md', '# ' + agentType + ' for ' + businessName + '\n\nBuilt with 404DEV AI', 'Add README');
     await enablePages(token, username, repoName);
+
+    // === NEW: Store deployment in Vercel KV ===
+    try {
+      await kv.sadd(`user:${username}:agents`, repoName);
+      await kv.hset(`agent:${username}:${repoName}`, {
+        agentType,
+        businessName,
+        industry,
+        websiteUrl: websiteUrl || '',
+        repoUrl: 'https://github.com/' + username + '/' + repoName,
+        deployedUrl: 'https://' + username + '.github.io/' + repoName,
+        createdAt: Date.now()
+      });
+    } catch (kvErr) {
+      console.error('KV store failed:', kvErr); // non-critical
+    }
 
     return res.status(200).json({
       success: true,
