@@ -22,15 +22,14 @@ export default async function handler(req, res) {
     const tokenData = await tokenRes.json();
 
     if (tokenData.access_token) {
-      // Dashboard login flow
       if (redirect) {
-        return res.redirect(`${redirect}?token=${tokenData.access_token}`);
+        return res.redirect(redirect + '?token=' + tokenData.access_token);
       }
-
-      // Deploy flow
-      let redirectUrl = '/?deploy=true&token=' + tokenData.access_token;
-      if (state) redirectUrl += '&data=' + encodeURIComponent(state);
-      return res.redirect(redirectUrl);
+      let redirectTo = '/?deploy=true&token=' + tokenData.access_token;
+      if (state && state.length > 0) {
+        redirectTo += '&data=' + encodeURIComponent(state);
+      }
+      return res.redirect(redirectTo);
     } else {
       return res.status(400).send('GitHub auth failed. Please try again.');
     }
