@@ -28,19 +28,19 @@
 
     if (token) {
       localStorage.setItem('github_token', token);
-      window.history.replaceState({}, document.title, '/dashboard');
+      window.history.replaceState({}, document.title, '/dashboard.html');
       document.getElementById('logoutBtn').style.display = 'inline-block';
       loadDashboard(token);
     } else {
       document.getElementById('content').innerHTML = `
         <p>Login with GitHub to see your agents.</p>
-        <a href="/api/github-oauth?redirect=/dashboard" class="login-btn">🔑 Login with GitHub</a>
+        <a href="/api/github-oauth?redirect=/dashboard.html" class="login-btn">🔑 Login with GitHub</a>
       `;
     }
 
     async function loadDashboard(token) {
       try {
-        const res = await fetch('/api/dashboard', { headers: { Authorization: `Bearer ${token}` } });
+        const res = await fetch('/dashboard', { headers: { Authorization: `Bearer ${token}` } });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
         renderDashboard(data);
