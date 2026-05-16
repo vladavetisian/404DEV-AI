@@ -61,7 +61,6 @@ input[type="color"] { width: 60px; height: 40px; padding: 2px; cursor: pointer; 
 const btn = document.getElementById("btn");
 const output = document.getElementById("output");
 
-// Resume deploy after OAuth redirect
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('deploy') === 'true') {
   const token = urlParams.get('token');
