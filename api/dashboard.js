@@ -1,4 +1,10 @@
 export default async function handler(req, res) {
+  // If it's a browser request for the page, serve the dashboard HTML
+  if (req.method === 'GET' && !req.headers.authorization) {
+    return res.redirect('/dashboard.html');
+  }
+
+  // Otherwise, it's an API request
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
